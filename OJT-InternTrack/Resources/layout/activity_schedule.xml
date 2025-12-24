@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Wavy Header Section -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="240dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/header_wavy_background"
+                    android:scaleType="centerCrop"/>
+
+                <!-- Top Bar -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <ImageButton
+                        android:id="@+id/backButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_menu_revert"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:tint="#FFFFFF"
+                        android:contentDescription="Back"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="My Schedule"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"/>
+
+                    <ImageButton
+                        android:id="@+id/addScheduleButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_alignParentEnd="true"
+                        android:src="@android:drawable/ic_menu_add"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:tint="#FFFFFF"
+                        android:contentDescription="Add Schedule"/>
+                </RelativeLayout>
+
+                <!-- Month Display -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_centerInParent="true">
+
+                    <TextView
+                        android:id="@+id/currentMonthYearText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="December 2025"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:elevation="4dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Viewing your assigned shifts"
+                        android:textSize="12sp"
+                        android:textColor="#DCFCE7"
+                        android:alpha="0.8"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <!-- Main Content Container -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginTop="-40dp">
+
+                <!-- Calendar Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/quick_action_card"
+                    android:padding="12dp"
+                    android:elevation="4dp"
+                    android:layout_marginBottom="24dp">
+
+                    <CalendarView
+                        android:id="@+id/calendarView"
+                        android:layout_width="match_parent"
+                        android:layout_height="320dp"/>
+                </LinearLayout>
+
+                <!-- Today Title Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Highlights"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A202C"/>
+                    
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="#E2E8F0"
+                        android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Highlight Session Card (Today/Most Recent) -->
+                <LinearLayout
+                    android:id="@+id/todaySessionCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/today_session_background"
+                    android:padding="24dp"
+                    android:elevation="6dp"
+                    android:layout_marginBottom="24dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:text="🎯"
+                            android:textSize="28sp"
+                            android:gravity="center"
+                            android:background="@drawable/circle_background_light_green"
+                            android:layout_marginEnd="16dp"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/todayTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Morning Shift"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="#FFFFFF"/>
+
+                            <TextView
+                                android:id="@+id/todayTime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="08:00 AM - 12:00 PM"
+                                android:textSize="14sp"
+                                android:textColor="#DCFCE7"
+                                android:alpha="0.9"
+                                android:layout_marginTop="4dp"/>
+
+                            <TextView
+                                android:id="@+id/alarmStatusText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="⏰ Alarm: 30m before"
+                                android:textSize="12sp"
+                                android:textColor="#FFFFFF"
+                                android:textStyle="bold"
+                                android:layout_marginTop="8dp"
+                                android:alpha="0.8"/>
+                        </LinearLayout>
+
+                        <Switch
+                            android:id="@+id/todayAlarmSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:thumbTint="#FFFFFF"
+                            android:trackTint="#6EE7B7"
+                            android:checked="true"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="20dp"
+                        android:padding="12dp"
+                        android:background="#10FFFFFF"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/todayLocation"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="📍 Main Office"
+                            android:textSize="13sp"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/editAlarmButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="EDIT ALARM"
+                            android:textSize="11sp"
+                            android:textColor="#FFFFFF"
+                            android:textStyle="bold"
+                            android:alpha="0.9"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="6dp"
+                            android:background="@drawable/circle_background_light_green"
+                            android:backgroundTint="#20FFFFFF"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Upcoming Section Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Shift List"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A202C"/>
+                    
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="#E2E8F0"
+                        android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Schedule List Container -->
+                <LinearLayout
+                    android:id="@+id/scheduleListContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    
+                    <!-- Dynamic Items will be injected here, but keeping placeholders for design reference -->
+                    <!-- Real items are added via ScheduleActivity.cs -->
+                </LinearLayout>
+
+                <!-- Branded Footer -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginBottom="32dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Plan your work, work your plan."
+                        android:textSize="11sp"
+                        android:textColor="#A0AEC0"
+                        android:fontStyle="italic"/>
+                        
+                    <View
+                        android:layout_width="32dp"
+                        android:layout_height="2dp"
+                        android:background="#E2E8F0"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

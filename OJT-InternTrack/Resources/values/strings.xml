@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">OJT Track</string>
+    <string name="app_text">Hello, Android!</string>
+    <string name="developer_credit">Created by: Logan M. Panucat</string>
+    <string name="version_info">Version 1.0</string>
+</resources>

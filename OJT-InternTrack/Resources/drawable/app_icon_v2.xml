@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Background of the icon content -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M20,20 h68 v68 h-68 z" />
+        
+    <!-- Main Icon: Academic Cap / Briefcase hybrid shape -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,35 L80,48 L54,61 L28,48 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M35,52 v10 c0,10 19,10 19,10 s19,0 19,-10 v-10 L54,62 Z" />
+    
+    <!-- Tracking lines (speed) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M25,75 h15 v3 h-15 z M45,75 h38 v3 h-38 z" />
+
+</vector>

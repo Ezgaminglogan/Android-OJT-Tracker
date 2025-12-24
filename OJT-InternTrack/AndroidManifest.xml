@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application android:allowBackup="true" android:icon="@mipmap/appicon" android:label="@string/app_name" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
+    <activity android:name=".Activities.TimeTrackingActivity" />
+    <activity android:name=".Activities.TimesheetActivity" />
+    <activity android:name=".Activities.TasksActivity" />
+    <activity android:name=".Activities.ReportsActivity" />
+    <activity android:name=".Activities.AboutActivity" />
+    <!-- Alarm Receiver -->
+    <receiver android:name=".AlarmReceiver" android:enabled="true" android:exported="true" />
+  </application>
+  
+  <!-- Permissions -->
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+  <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.VIBRATE" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+</manifest>

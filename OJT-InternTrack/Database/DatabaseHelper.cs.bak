@@ -1,0 +1,697 @@
+using Android.Database.Sqlite;
+using Android.Content;
+
+namespace OJT_InternTrack.Database
+{
+    public class DatabaseHelper : SQLiteOpenHelper
+    {
+        private const string DatabaseName = "OJTInternTrack.db";
+        private const int DatabaseVersion = 1;
+
+        // Table names
+        public const string TableUsers = "users";
+        public const string TableSchedules = "schedules";
+        public const string TableTasks = "tasks";
+
+        // Users table columns
+        public const string ColUserId = "user_id";
+        public const string ColEmail = "email";
+        public const string ColPassword = "password";
+        public const string ColFullName = "full_name";
+        public const string ColStudentId = "student_id";
+        public const string ColCreatedAt = "created_at";
+
+        // Schedules table columns
+        public const string ColScheduleId = "schedule_id";
+        public const string ColTitle = "title";
+        public const string ColDescription = "description";
+        public const string ColStartDate = "start_date";
+        public const string ColEndDate = "end_date";
+        public const string ColStartTime = "start_time";
+        public const string ColEndTime = "end_time";
+        public const string ColLocation = "location";
+        public const string ColAlarmEnabled = "alarm_enabled";
+        public const string ColAlarmMinutes = "alarm_minutes";
+        public const string ColIsCompleted = "is_completed";
+        public const string ColType = "type";
+
+        // Tasks table columns
+        public const string ColTaskId = "task_id";
+        public const string ColTaskTitle = "task_title";
+        public const string ColTaskDescription = "task_description";
+        public const string ColTaskStatus = "task_status";
+        public const string ColDueDate = "due_date";
+        public const string ColCompletedDate = "completed_date";
+
+        public DatabaseHelper(Context? context)
+            : base(context, DatabaseName, null, DatabaseVersion)
+        {
+        }
+
+        public override void OnCreate(SQLiteDatabase? db)
+        {
+            if (db == null) return;
+
+            // Create Users table
+            string createUsersTable = $@"
+                CREATE TABLE {TableUsers} (
+                    {ColUserId} INTEGER PRIMARY KEY AUTOINCREMENT,
+                    {ColEmail} TEXT UNIQUE NOT NULL,
+                    {ColPassword} TEXT NOT NULL,
+                    {ColFullName} TEXT,
+                    {ColStudentId} TEXT,
+                    {ColCreatedAt} DATETIME DEFAULT CURRENT_TIMESTAMP
+                )";
+
+            // Create Schedules table
+            string createSchedulesTable = $@"
+                CREATE TABLE {TableSchedules} (
+                    {ColScheduleId} INTEGER PRIMARY KEY AUTOINCREMENT,
+                    {ColUserId} INTEGER,
+                    {ColTitle} TEXT NOT NULL,
+                    {ColDescription} TEXT,
+                    {ColStartDate} TEXT NOT NULL,
+                    {ColEndDate} TEXT,
+                    {ColStartTime} TEXT NOT NULL,
+                    {ColEndTime} TEXT NOT NULL,
+                    {ColLocation} TEXT,
+                    {ColAlarmEnabled} INTEGER DEFAULT 0,
+                    {ColAlarmMinutes} INTEGER DEFAULT 30,
+                    {ColIsCompleted} INTEGER DEFAULT 0,
+                    {ColType} TEXT DEFAULT 'Work',
+                    {ColCreatedAt} DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY({ColUserId}) REFERENCES {TableUsers}({ColUserId})
+                )";
+
+            // Create Tasks table
+            string createTasksTable = $@"
+                CREATE TABLE {TableTasks} (
+                    {ColTaskId} INTEGER PRIMARY KEY AUTOINCREMENT,
+                    {ColUserId} INTEGER,
+                    {ColTaskTitle} TEXT NOT NULL,
+                    {ColTaskDescription} TEXT,
+                    {ColTaskStatus} TEXT DEFAULT 'Pending',
+                    {ColDueDate} TEXT,
+                    {ColCompletedDate} TEXT,
+                    {ColCreatedAt} DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY({ColUserId}) REFERENCES {TableUsers}({ColUserId})
+                )";
+
+            // Create TimeEntries table
+            string createTimeEntriesTable = @"
+                CREATE TABLE time_entries (
+                    entry_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    clock_in_time DATETIME,
+                    clock_out_time DATETIME,
+                    total_hours REAL,
+                    location TEXT,
+                    notes TEXT,
+                    status TEXT DEFAULT 'active',
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY(user_id) REFERENCES users(user_id)
+                )";
+
+            db.ExecSQL(createUsersTable);
+            db.ExecSQL(createSchedulesTable);
+            db.ExecSQL(createTasksTable);
+            db.ExecSQL(createTimeEntriesTable);
+
+            // Insert default admin user (password: admin123)
+            string insertAdmin = $@"
+                INSERT INTO {TableUsers} ({ColEmail}, {ColPassword}, {ColFullName}, {ColStudentId})
+                VALUES ('admin', 'admin123', 'Administrator', 'ADMIN001')";
+
+            db.ExecSQL(insertAdmin);
+        }
+
+        public override void OnUpgrade(SQLiteDatabase? db, int oldVersion, int newVersion)
+        {
+            if (db == null) return;
+
+            // Drop existing tables
+            db.ExecSQL($"DROP TABLE IF EXISTS {TableTasks}");
+            db.ExecSQL($"DROP TABLE IF EXISTS {TableSchedules}");
+            db.ExecSQL($"DROP TABLE IF EXISTS {TableUsers}");
+
+            // Recreate tables
+            OnCreate(db);
+        }
+
+        // User authentication
+        public bool ValidateUser(string email, string password)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return false;
+
+            var cursor = db.RawQuery(
+                $"SELECT * FROM {TableUsers} WHERE {ColEmail} = ? AND {ColPassword} = ?",
+                new[] { email, password }
+            );
+
+            bool isValid = cursor?.Count > 0;
+            cursor?.Close();
+            return isValid;
+        }
+
+        // Get user ID
+        public int GetUserId(string email)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return -1;
+
+            var cursor = db.RawQuery(
+                $"SELECT {ColUserId} FROM {TableUsers} WHERE {ColEmail} = ?",
+                new[] { email }
+            );
+
+            int userId = -1;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                userId = cursor.GetInt(0);
+            }
+            cursor?.Close();
+            return userId;
+        }
+
+        // Register new user
+        public bool RegisterUser(string email, string password, string fullName, string studentId)
+        {
+            var db = WritableDatabase;
+            if (db == null) return false;
+
+            try
+            {
+                var values = new ContentValues();
+                values.Put(ColEmail, email);
+                values.Put(ColPassword, password);
+                values.Put(ColFullName, fullName);
+                values.Put(ColStudentId, studentId);
+
+                long result = db.Insert(TableUsers, null, values);
+                return result != -1;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Get user full name
+        public string GetUserFullName(string email)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return email;
+
+            var cursor = db.RawQuery(
+                $"SELECT {ColFullName} FROM {TableUsers} WHERE {ColEmail} = ?",
+                new[] { email }
+            );
+
+            string fullName = email;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                fullName = cursor.GetString(0) ?? email;
+            }
+            cursor?.Close();
+            return fullName;
+        }
+
+        // Get total hours worked from completed schedules
+        public double GetTotalHoursWorked(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            var cursor = db.RawQuery(
+                $@"SELECT {ColStartTime}, {ColEndTime} 
+                   FROM {TableSchedules} 
+                   WHERE {ColUserId} = ? AND {ColIsCompleted} = 1",
+                new[] { userId.ToString() }
+            );
+
+            double totalHours = 0;
+            if (cursor != null)
+            {
+                while (cursor.MoveToNext())
+                {
+                    var startTime = cursor.GetString(0);
+                    var endTime = cursor.GetString(1);
+
+                    if (TimeSpan.TryParse(startTime, out var start) &&
+                        TimeSpan.TryParse(endTime, out var end))
+                    {
+                        totalHours += (end - start).TotalHours;
+                    }
+                }
+                cursor.Close();
+            }
+
+            return totalHours;
+        }
+
+        // Get completed tasks count
+        public int GetCompletedTasksCount(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            var cursor = db.RawQuery(
+                $"SELECT COUNT(*) FROM {TableTasks} WHERE {ColUserId} = ? AND {ColTaskStatus} = 'Completed'",
+                new[] { userId.ToString() }
+            );
+
+            int count = 0;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                count = cursor.GetInt(0);
+            }
+            cursor?.Close();
+            return count;
+        }
+
+        // Get pending tasks count
+        public int GetPendingTasksCount(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            var cursor = db.RawQuery(
+                $"SELECT COUNT(*) FROM {TableTasks} WHERE {ColUserId} = ? AND {ColTaskStatus} = 'Pending'",
+                new[] { userId.ToString() }
+            );
+
+            int count = 0;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                count = cursor.GetInt(0);
+            }
+            cursor?.Close();
+            return count;
+        }
+
+        // Get upcoming schedules count
+        public int GetUpcomingSchedulesCount(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            string today = DateTime.Today.ToString("yyyy-MM-dd");
+            var cursor = db.RawQuery(
+                $"SELECT COUNT(*) FROM {TableSchedules} WHERE {ColUserId} = ? AND {ColStartDate} >= ? AND {ColIsCompleted} = 0",
+                new[] { userId.ToString(), today }
+            );
+
+            int count = 0;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                count = cursor.GetInt(0);
+            }
+            cursor?.Close();
+            return count;
+        }
+
+        // Get recent activities (recent tasks and schedules)
+        public List<ActivityItem> GetRecentActivities(int userId, int limit = 5)
+        {
+            var activities = new List<ActivityItem>();
+            var db = ReadableDatabase;
+            if (db == null) return activities;
+
+            // Get recent completed tasks
+            var taskCursor = db.RawQuery(
+                $@"SELECT {ColTaskTitle}, {ColCompletedDate}, 'Task' as Type 
+                   FROM {TableTasks} 
+                   WHERE {ColUserId} = ? AND {ColTaskStatus} = 'Completed' 
+                   ORDER BY {ColCompletedDate} DESC 
+                   LIMIT ?",
+                new[] { userId.ToString(), limit.ToString() }
+            );
+
+            if (taskCursor != null)
+            {
+                while (taskCursor.MoveToNext())
+                {
+                    activities.Add(new ActivityItem
+                    {
+                        Title = taskCursor.GetString(0),
+                        Date = taskCursor.GetString(1),
+                        Type = "Task"
+                    });
+                }
+                taskCursor.Close();
+            }
+
+            // Get recent completed schedules
+            var scheduleCursor = db.RawQuery(
+                $@"SELECT {ColTitle}, {ColStartDate}, 'Schedule' as Type 
+                   FROM {TableSchedules} 
+                   WHERE {ColUserId} = ? AND {ColIsCompleted} = 1 
+                   ORDER BY {ColStartDate} DESC 
+                   LIMIT ?",
+                new[] { userId.ToString(), limit.ToString() }
+            );
+
+            if (scheduleCursor != null)
+            {
+                while (scheduleCursor.MoveToNext())
+                {
+                    activities.Add(new ActivityItem
+                    {
+                        Title = scheduleCursor.GetString(0),
+                        Date = scheduleCursor.GetString(1),
+                        Type = "Schedule"
+                    });
+                }
+                scheduleCursor.Close();
+            }
+
+            // Sort by date and limit
+            return activities.OrderByDescending(a => a.Date).Take(limit).ToList();
+        }
+    }
+
+    // Helper class for activities
+    public class ActivityItem
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Date { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+
+        public string GetFormattedDate()
+        {
+            if (DateTime.TryParse(Date, out var date))
+            {
+                var diff = DateTime.Now - date;
+                if (diff.TotalDays < 1) return "Today";
+                if (diff.TotalDays < 2) return "Yesterday";
+                if (diff.TotalDays < 7) return $"{(int)diff.TotalDays} days ago";
+                return date.ToString("MMM dd");
+            }
+                return false;
+            }
+        }
+
+        // Get user full name
+        public string GetUserFullName(string email)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return email;
+
+            var cursor = db.RawQuery(
+                $"SELECT {ColFullName} FROM {TableUsers} WHERE {ColEmail} = ?",
+                new[] { email }
+            );
+
+            string fullName = email;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                fullName = cursor.GetString(0) ?? email;
+            }
+            cursor?.Close();
+            return fullName;
+        }
+
+        // Get total hours worked from completed schedules
+        public double GetTotalHoursWorked(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            var cursor = db.RawQuery(
+                $@"SELECT {ColStartTime}, {ColEndTime} 
+                   FROM {TableSchedules} 
+                   WHERE {ColUserId} = ? AND {ColIsCompleted} = 1",
+                new[] { userId.ToString() }
+            );
+
+            double totalHours = 0;
+            if (cursor != null)
+            {
+                while (cursor.MoveToNext())
+                {
+                    var startTime = cursor.GetString(0);
+                    var endTime = cursor.GetString(1);
+
+                    if (TimeSpan.TryParse(startTime, out var start) &&
+                        TimeSpan.TryParse(endTime, out var end))
+                    {
+                        totalHours += (end - start).TotalHours;
+                    }
+                }
+                cursor.Close();
+            }
+
+            return totalHours;
+        }
+
+        // Get completed tasks count
+        public int GetCompletedTasksCount(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            var cursor = db.RawQuery(
+                $"SELECT COUNT(*) FROM {TableTasks} WHERE {ColUserId} = ? AND {ColTaskStatus} = 'Completed'",
+                new[] { userId.ToString() }
+            );
+
+            int count = 0;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                count = cursor.GetInt(0);
+            }
+            cursor?.Close();
+            return count;
+        }
+
+        // Get pending tasks count
+        public int GetPendingTasksCount(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            var cursor = db.RawQuery(
+                $"SELECT COUNT(*) FROM {TableTasks} WHERE {ColUserId} = ? AND {ColTaskStatus} = 'Pending'",
+                new[] { userId.ToString() }
+            );
+
+            int count = 0;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                count = cursor.GetInt(0);
+            }
+            cursor?.Close();
+            return count;
+        }
+
+        // Get upcoming schedules count
+        public int GetUpcomingSchedulesCount(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            string today = DateTime.Today.ToString("yyyy-MM-dd");
+            var cursor = db.RawQuery(
+                $"SELECT COUNT(*) FROM {TableSchedules} WHERE {ColUserId} = ? AND {ColStartDate} >= ? AND {ColIsCompleted} = 0",
+                new[] { userId.ToString(), today }
+            );
+
+            int count = 0;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                count = cursor.GetInt(0);
+            }
+            cursor?.Close();
+            return count;
+        }
+
+        // Get recent activities (recent tasks and schedules)
+        public List<ActivityItem> GetRecentActivities(int userId, int limit = 5)
+        {
+            var activities = new List<ActivityItem>();
+            var db = ReadableDatabase;
+            if (db == null) return activities;
+
+            // Get recent completed tasks
+            var taskCursor = db.RawQuery(
+                $@"SELECT {ColTaskTitle}, {ColCompletedDate}, 'Task' as Type 
+                   FROM {TableTasks} 
+                   WHERE {ColUserId} = ? AND {ColTaskStatus} = 'Completed' 
+                   ORDER BY {ColCompletedDate} DESC 
+                   LIMIT ?",
+                new[] { userId.ToString(), limit.ToString() }
+            );
+
+            if (taskCursor != null)
+            {
+                while (taskCursor.MoveToNext())
+                {
+                    activities.Add(new ActivityItem
+                    {
+                        Title = taskCursor.GetString(0),
+                        Date = taskCursor.GetString(1),
+                        Type = "Task"
+                    });
+                }
+                taskCursor.Close();
+            }
+
+            // Get recent completed schedules
+            var scheduleCursor = db.RawQuery(
+                $@"SELECT {ColTitle}, {ColStartDate}, 'Schedule' as Type 
+                   FROM {TableSchedules} 
+                   WHERE {ColUserId} = ? AND {ColIsCompleted} = 1 
+                   ORDER BY {ColStartDate} DESC 
+                   LIMIT ?",
+                new[] { userId.ToString(), limit.ToString() }
+            );
+
+            if (scheduleCursor != null)
+            {
+                while (scheduleCursor.MoveToNext())
+                {
+                    activities.Add(new ActivityItem
+                    {
+                        Title = scheduleCursor.GetString(0),
+                        Date = scheduleCursor.GetString(1),
+                        Type = "Schedule"
+                    });
+                }
+                scheduleCursor.Close();
+            }
+
+            // Sort by date and limit
+            return activities.OrderByDescending(a => a.Date).Take(limit).ToList();
+        }
+
+        // Time Tracking Helper Methods
+        public int ClockIn(int userId, string? location = null)
+        {
+            var db = WritableDatabase;
+            if (db == null) return -1;
+
+            var values = new ContentValues();
+            values.Put("user_id", userId);
+            values.Put("clock_in_time", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            values.Put("location", location ?? "");
+            values.Put("status", "active");
+
+            long entryId = db.Insert("time_entries", null, values);
+            return (int)entryId;
+        }
+
+        public bool ClockOut(int entryId, string? notes = null)
+        {
+            var db = WritableDatabase;
+            if (db == null) return false;
+
+            var clockOutTime = DateTime.Now;
+            
+            var cursor = db.RawQuery(
+                "SELECT clock_in_time FROM time_entries WHERE entry_id = ?",
+                new[] { entryId.ToString() }
+            );
+
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                var clockInStr = cursor.GetString(0);
+                cursor.Close();
+
+                if (DateTime.TryParse(clockInStr, out var clockInTime))
+                {
+                    var totalHours = (clockOutTime - clockInTime).TotalHours;
+
+                    var values = new ContentValues();
+                    values.Put("clock_out_time", clockOutTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                    values.Put("total_hours", totalHours);
+                    values.Put("notes", notes ?? "");
+                    values.Put("status", "completed");
+
+                    int rows = db.Update("time_entries", values, "entry_id = ?", new[] { entryId.ToString() });
+                    return rows > 0;
+                }
+            }
+            return false;
+        }
+
+        public Models.TimeEntry? GetActiveTimeEntry(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return null;
+
+            var cursor = db.RawQuery(
+                @"SELECT entry_id, user_id, clock_in_time, clock_out_time, total_hours, location, notes, status 
+                  FROM time_entries 
+                  WHERE user_id = ? AND status = 'active' 
+                  LIMIT 1",
+                new[] { userId.ToString() }
+            );
+
+            Models.TimeEntry? entry = null;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                entry = new Models.TimeEntry
+                {
+                    EntryId = cursor.GetInt(0),
+                    UserId = cursor.GetInt(1),
+                    ClockInTime = DateTime.TryParse(cursor.GetString(2), out var cin) ? cin : null,
+                    ClockOutTime = cursor.IsNull(3) ? null : DateTime.TryParse(cursor.GetString(3), out var cout) ? cout : null,
+                    TotalHours = cursor.GetDouble(4),
+                    Location = cursor.GetString(5),
+                    Notes = cursor.GetString(6),
+                    Status = cursor.GetString(7)
+                };
+                cursor.Close();
+            }
+            return entry;
+        }
+
+        public double GetTodayTotalTimeHours(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            string today = DateTime.Today.ToString("yyyy-MM-dd");
+            var cursor = db.RawQuery(
+                "SELECT SUM(total_hours) FROM time_entries WHERE user_id = ? AND DATE(clock_in_time) = ? AND status = 'completed'",
+                new[] { userId.ToString(), today }
+            );
+
+            double total = 0;
+            if (cursor != null && cursor.MoveToFirst() && !cursor.IsNull(0))
+            {
+                total = cursor.GetDouble(0);
+            }
+            cursor?.Close();
+            return total;
+        }
+    }
+
+    // Helper class for activities
+    public class ActivityItem
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Date { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+
+        public string GetFormattedDate()
+        {
+            if (DateTime.TryParse(Date, out var date))
+            {
+                var diff = DateTime.Now - date;
+                if (diff.TotalDays < 1) return "Today";
+                if (diff.TotalDays < 2) return "Yesterday";
+                if (diff.TotalDays < 7) return $"{(int)diff.TotalDays} days ago";
+                return date.ToString("MMM dd");
+            }
+            return Date;
+        }
+
+        public string GetIcon()
+        {
+            return Type == "Task" ? "✓" : "📅";
+        }
+    }
+}
+

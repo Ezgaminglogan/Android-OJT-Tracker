@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipeRefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Wavy Header Section -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="280dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/header_wavy_background"
+                    android:scaleType="centerCrop"/>
+
+                <!-- Top Bar -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <ImageButton
+                        android:id="@+id/backButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_menu_revert"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:tint="#FFFFFF"
+                        android:contentDescription="Back"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="Time Tracking"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"/>
+                </RelativeLayout>
+
+                <!-- Clock Display -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="20dp">
+
+                    <TextView
+                        android:id="@+id/currentTimeText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00:00 AM"
+                        android:textSize="56sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:elevation="4dp"/>
+
+                    <TextView
+                        android:id="@+id/currentDateText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Monday, December 23"
+                        android:textSize="14sp"
+                        android:textColor="#DCFCE7"
+                        android:alpha="0.9"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <!-- Main Content Container -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginTop="-40dp">
+
+                <!-- Status Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/quick_action_card"
+                    android:padding="24dp"
+                    android:elevation="4dp"
+                    android:gravity="center"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        android:id="@+id/statusText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="● Not Clocked In"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#718096"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:id="@+id/activeTimerText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00:00:00"
+                        android:textSize="42sp"
+                        android:textStyle="bold"
+                        android:textColor="#10B981"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/clockedInSinceText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Started at: 08:00 AM"
+                        android:textSize="12sp"
+                        android:textColor="#A0AEC0"
+                        android:visibility="gone"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <!-- Clock Controls Grid -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="20dp">
+
+                    <Button
+                        android:id="@+id/clockInButton"
+                        android:layout_width="0dp"
+                        android:layout_height="140dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:text="Clock In\n⏱️"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:background="@drawable/button_save"
+                        android:elevation="4dp"
+                        android:padding="16dp"
+                        android:lineSpacingExtra="4dp"
+                        android:textAllCaps="false"/>
+
+                    <Button
+                        android:id="@+id/clockOutButton"
+                        android:layout_width="0dp"
+                        android:layout_height="140dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:text="Clock Out\n🛑"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:background="@drawable/button_clock_out"
+                        android:elevation="4dp"
+                        android:padding="16dp"
+                        android:lineSpacingExtra="4dp"
+                        android:textAllCaps="false"
+                        android:enabled="false"/>
+                </LinearLayout>
+
+                <!-- Today Summary Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/quick_action_card"
+                    android:padding="20dp"
+                    android:elevation="2dp"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Today's Summary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A202C"
+                        android:layout_marginBottom="16dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Hours Worked"
+                                android:textSize="11sp"
+                                android:textColor="#718096"
+                                android:layout_marginBottom="4dp"/>
+                            <TextView
+                                android:id="@+id/todayHoursText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0.0h"
+                                android:textSize="22sp"
+                                android:textStyle="bold"
+                                android:textColor="#10B981"/>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#EDF2F7"
+                            android:layout_marginHorizontal="12dp"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Active Sessions"
+                                android:textSize="11sp"
+                                android:textColor="#718096"
+                                android:layout_marginBottom="4dp"/>
+                            <TextView
+                                android:id="@+id/todaySessionsText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="22sp"
+                                android:textStyle="bold"
+                                android:textColor="#3B82F6"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Activity Tools Header -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Activity Tools"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A202C"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- History Button -->
+                    <LinearLayout
+                        android:id="@+id/viewTimesheetButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="@drawable/quick_action_card"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingTop="20dp"
+                        android:paddingBottom="20dp"
+                        android:elevation="2dp">
+                        
+                        <TextView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:text="📊"
+                            android:textSize="24sp"
+                            android:gravity="center"
+                            android:background="@drawable/circle_background_light_blue"
+                            android:layout_marginBottom="12dp"/>
+                        
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="History"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A202C"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="View all logs"
+                            android:textSize="10sp"
+                            android:textColor="#718096"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+
+                    <!-- Add Notes Button -->
+                    <LinearLayout
+                        android:id="@+id/addNotesButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="@drawable/quick_action_card"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingTop="20dp"
+                        android:paddingBottom="20dp"
+                        android:elevation="2dp">
+                        
+                        <TextView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:text="📝"
+                            android:textSize="24sp"
+                            android:gravity="center"
+                            android:background="@drawable/circle_background_light_purple"
+                            android:layout_marginBottom="12dp"/>
+                        
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Add Notes"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A202C"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Session details"
+                            android:textSize="10sp"
+                            android:textColor="#718096"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Recent History Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recent Sessions"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A202C"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="16dp"/>
+
+                <LinearLayout
+                    android:id="@+id/historyContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    
+                    <!-- History items will be added here dynamically -->
+                    <TextView
+                        android:id="@+id/noHistoryText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No recent sessions found"
+                        android:textSize="14sp"
+                        android:textColor="#A0AEC0"
+                        android:gravity="center"
+                        android:padding="20dp"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+                <!-- Branded Footer -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginBottom="24dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Always be on time. Excellence is a habit."
+                        android:textSize="11sp"
+                        android:textColor="#A0AEC0"
+                        android:fontStyle="italic"/>
+                        
+                    <View
+                        android:layout_width="32dp"
+                        android:layout_height="2.5dp"
+                        android:background="#E2E8F0"
+                        android:layout_marginTop="10dp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

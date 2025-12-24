@@ -1,0 +1,447 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+<LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Weekly Schedule Template"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#10B981"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select the days you work each week:"
+        android:textSize="12sp"
+        android:textColor="#718096"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Day Toggles -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"
+        android:weightSum="7">
+
+        <TextView android:id="@+id/day0" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="M" android:gravity="center" android:background="@drawable/circle_day_inactive" android:textColor="#718096" android:layout_margin="2dp" android:clickable="true"/>
+        <TextView android:id="@+id/day1" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="T" android:gravity="center" android:background="@drawable/circle_day_inactive" android:textColor="#718096" android:layout_margin="2dp" android:clickable="true"/>
+        <TextView android:id="@+id/day2" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="W" android:gravity="center" android:background="@drawable/circle_day_inactive" android:textColor="#718096" android:layout_margin="2dp" android:clickable="true"/>
+        <TextView android:id="@+id/day3" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="T" android:gravity="center" android:background="@drawable/circle_day_inactive" android:textColor="#718096" android:layout_margin="2dp" android:clickable="true"/>
+        <TextView android:id="@+id/day4" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="F" android:gravity="center" android:background="@drawable/circle_day_inactive" android:textColor="#718096" android:layout_margin="2dp" android:clickable="true"/>
+        <TextView android:id="@+id/day5" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="S" android:gravity="center" android:background="@drawable/circle_day_inactive" android:textColor="#718096" android:layout_margin="2dp" android:clickable="true"/>
+        <TextView android:id="@+id/day6" android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:text="S" android:gravity="center" android:background="@drawable/circle_day_inactive" android:textColor="#718096" android:layout_margin="2dp" android:clickable="true"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:layout_marginBottom="16dp">
+
+        <!-- Plan Hours -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Target Hours"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="#10B981"
+            app:hintTextColor="#10B981"
+            android:layout_marginEnd="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/planHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="600"
+                android:textSize="14sp"
+                android:textColor="#1A202C"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Projected End Date Display (Non-editable) -->
+        <LinearLayout
+            android:id="@+id/projectionContainer"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:background="@drawable/input_background_disabled"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Projected Finish"
+                android:textSize="11sp"
+                android:textColor="#A0AEC0"/>
+
+            <TextView
+                android:id="@+id/textPlanProjection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Calculating..."
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#10B981"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Shift & Break Times Grid -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_marginBottom="12dp">
+
+        <LinearLayout
+            android:id="@+id/fixedShiftStartContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@drawable/input_background"
+            android:layout_marginEnd="4dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Shift Start" android:textSize="11sp" android:textColor="#718096"/>
+            <TextView android:id="@+id/textFixedShiftStart" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="08:00 AM" android:textSize="13sp" android:textStyle="bold" android:textColor="#1A202C"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fixedShiftEndContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@drawable/input_background"
+            android:layout_marginStart="4dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Shift End" android:textSize="11sp" android:textColor="#718096"/>
+            <TextView android:id="@+id/textFixedShiftEnd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="05:00 PM" android:textSize="13sp" android:textStyle="bold" android:textColor="#1A202C"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_marginBottom="24dp">
+
+        <LinearLayout
+            android:id="@+id/breakStartContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@drawable/input_background"
+            android:layout_marginEnd="4dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Break Start" android:textSize="11sp" android:textColor="#718096"/>
+            <TextView android:id="@+id/textBreakStart" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12:00 PM" android:textSize="13sp" android:textStyle="bold" android:textColor="#1A202C"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/breakEndContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@drawable/input_background"
+            android:layout_marginStart="4dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Break End" android:textSize="11sp" android:textColor="#718096"/>
+            <TextView android:id="@+id/textBreakEnd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="01:00 PM" android:textSize="13sp" android:textStyle="bold" android:textColor="#1A202C"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E2E8F0"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add New Shift Entry"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#1A202C"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Title Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Shift Title (e.g. Morning Shift)"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxStrokeColor="#10B981"
+        app:hintTextColor="#10B981"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"
+            android:textColor="#1A202C"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Date Picker Trigger -->
+    <LinearLayout
+        android:id="@+id/datePickerContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:background="@drawable/quick_action_card"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📅"
+            android:textSize="20sp"
+            android:layout_marginEnd="12dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Date"
+                android:textSize="12sp"
+                android:textColor="#718096"/>
+
+            <TextView
+                android:id="@+id/textSelectedDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Start Date"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#1A202C"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_marginBottom="16dp">
+
+        <!-- Start Time -->
+        <LinearLayout
+            android:id="@+id/startTimeContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:background="@drawable/quick_action_card"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start Time"
+                    android:textSize="12sp"
+                    android:textColor="#718096"/>
+
+                <TextView
+                    android:id="@+id/textStartTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="08:00 AM"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A202C"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- End Time -->
+        <LinearLayout
+            android:id="@+id/endTimeContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:background="@drawable/quick_action_card"
+            android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="End Time"
+                    android:textSize="12sp"
+                    android:textColor="#718096"/>
+
+                <TextView
+                    android:id="@+id/textEndTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="05:00 PM"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A202C"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Location Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Location (e.g. Main Office)"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxStrokeColor="#10B981"
+        app:hintTextColor="#10B981"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"
+            android:textColor="#1A202C"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Type Spinner/Selector -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Shift Type"
+        android:textSize="12sp"
+        android:textColor="#718096"
+        android:layout_marginBottom="8dp"/>
+    
+    <Spinner
+        android:id="@+id/spinnerType"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/quick_action_card"
+        android:padding="8dp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Alarm Sound Selection -->
+    <LinearLayout
+        android:id="@+id/soundPickerContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:background="@drawable/quick_action_card"
+        android:layout_marginBottom="24dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎵"
+            android:textSize="20sp"
+            android:layout_marginEnd="12dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Alarm Sound"
+                android:textSize="12sp"
+                android:textColor="#718096"/>
+
+            <TextView
+                android:id="@+id/textSelectedSound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Default Alarm"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#1A202C"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:textColor="#718096"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save Shift"
+            android:backgroundTint="#10B981"
+            android:textColor="#FFFFFF"/>
+    </LinearLayout>
+
+</LinearLayout>
+</ScrollView>

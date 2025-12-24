@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Wavy Header Section -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="240dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/header_wavy_background"
+                    android:scaleType="centerCrop"/>
+
+                <!-- Top Bar Over Header -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <ImageButton
+                        android:id="@+id/backButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_menu_revert"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:tint="#FFFFFF"
+                        android:padding="8dp"
+                        android:contentDescription="Back"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="Edit Profile"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"/>
+
+                    <Button
+                        android:id="@+id/saveButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:text="Save"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#10B981"
+                        android:background="@drawable/button_profile_edit"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:elevation="4dp"/>
+                </RelativeLayout>
+
+                <!-- Profile Photo (Centrally positioned on wave) -->
+                <FrameLayout
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="20dp">
+
+                    <ImageView
+                        android:id="@+id/profileImageView"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:src="@drawable/default_profile"
+                        android:scaleType="center"
+                        android:background="@drawable/circle_background"
+                        android:padding="3dp"
+                        android:elevation="4dp"/>
+
+                    <ImageButton
+                        android:id="@+id/changePhotoButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_menu_camera"
+                        android:background="@drawable/camera_button_background"
+                        android:layout_gravity="bottom|end"
+                        android:elevation="6dp"
+                        android:padding="8dp"
+                        android:tint="#FFFFFF"/>
+                </FrameLayout>
+            </RelativeLayout>
+
+            <!-- Settings Content -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Personal Information Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/quick_action_card"
+                    android:padding="20dp"
+                    android:elevation="2dp"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Personal Information"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A202C"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- Full Name -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Full Name"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#718096"
+                        android:layout_marginBottom="6dp"/>
+
+                    <EditText
+                        android:id="@+id/fullNameEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="Enter full name"
+                        android:inputType="textPersonName"
+                        android:background="@drawable/input_background"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textSize="15sp"
+                        android:textColor="#1A202C"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- Student ID -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Student ID"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#718096"
+                        android:layout_marginBottom="6dp"/>
+
+                    <EditText
+                        android:id="@+id/studentIdEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="ID Number"
+                        android:inputType="text"
+                        android:background="@drawable/input_background"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textSize="15sp"
+                        android:textColor="#1A202C"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- Email (Disabled) -->
+                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Email Address (Locked)"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#A0AEC0"
+                        android:layout_marginBottom="6dp"/>
+
+                    <EditText
+                        android:id="@+id/emailEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/input_background_disabled"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textSize="15sp"
+                        android:textColor="#A0AEC0"
+                        android:enabled="false"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- Required OJT Hours -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Required OJT Hours"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#718096"
+                        android:layout_marginBottom="6dp"/>
+
+                    <EditText
+                        android:id="@+id/requiredHoursEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="e.g. 600"
+                        android:inputType="number"
+                        android:background="@drawable/input_background"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textSize="15sp"
+                        android:textColor="#1A202C"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- OJT Start Date -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="OJT Start Date"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#718096"
+                        android:layout_marginBottom="6dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/startDatePickerContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/input_background"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/startDateText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Select Start Date"
+                            android:textSize="15sp"
+                            android:textColor="#1A202C"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📅"
+                            android:textSize="18sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Security / Password Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/quick_action_card"
+                    android:padding="20dp"
+                    android:elevation="2dp"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Security"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A202C"
+                        android:layout_marginBottom="16dp"/>
+
+                    <EditText
+                        android:id="@+id/currentPasswordEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="Current Password"
+                        android:inputType="textPassword"
+                        android:background="@drawable/input_background"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textSize="15sp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <EditText
+                        android:id="@+id/newPasswordEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="New Password"
+                        android:inputType="textPassword"
+                        android:background="@drawable/input_background"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textSize="15sp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <EditText
+                        android:id="@+id/confirmPasswordEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="Confirm New Password"
+                        android:inputType="textPassword"
+                        android:background="@drawable/input_background"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textSize="15sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Leave password fields empty to keep current."
+                        android:textSize="11sp"
+                        android:textColor="#A0AEC0"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <!-- Danger Zone Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/quick_action_card"
+                    android:padding="20dp"
+                    android:elevation="2dp"
+                    android:layout_marginBottom="40dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Danger Zone"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#DC2626"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Deleting your account will permanently remove all your progress and history."
+                        android:textSize="12sp"
+                        android:textColor="#718096"
+                        android:layout_marginBottom="16dp"/>
+
+                    <Button
+                        android:id="@+id/deleteAccountButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Delete Account"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#DC2626"
+                        android:background="@drawable/button_delete_account"
+                        android:textAllCaps="false"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

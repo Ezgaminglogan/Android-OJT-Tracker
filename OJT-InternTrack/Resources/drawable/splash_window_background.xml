@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Solid emerald background to match splash screen -->
+    <item>
+        <color android:color="#10B981" />
+    </item>
+    
+    <!-- App Icon in center -->
+    <item
+        android:drawable="@drawable/app_icon_v2"
+        android:gravity="center"
+        android:width="120dp"
+        android:height="120dp" />
+</layer-list>
