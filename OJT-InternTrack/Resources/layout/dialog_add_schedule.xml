@@ -19,6 +19,7 @@
         android:textColor="#10B981"
         android:layout_marginBottom="8dp"/>
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -374,49 +375,6 @@
         android:padding="8dp"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Alarm Sound Selection -->
-    <LinearLayout
-        android:id="@+id/soundPickerContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="12dp"
-        android:background="@drawable/quick_action_card"
-        android:layout_marginBottom="24dp"
-        android:clickable="true"
-        android:focusable="true">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🎵"
-            android:textSize="20sp"
-            android:layout_marginEnd="12dp"/>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Alarm Sound"
-                android:textSize="12sp"
-                android:textColor="#718096"/>
-
-            <TextView
-                android:id="@+id/textSelectedSound"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Default Alarm"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#1A202C"/>
-        </LinearLayout>
-    </LinearLayout>
 
     <!-- Buttons -->
     <LinearLayout

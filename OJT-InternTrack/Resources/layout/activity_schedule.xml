@@ -59,6 +59,18 @@
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:tint="#FFFFFF"
                         android:contentDescription="Add Schedule"/>
+
+                    <ImageButton
+                        android:id="@+id/btnBatchDelete"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_toStartOf="@id/addScheduleButton"
+                        android:layout_marginEnd="8dp"
+                        android:src="@android:drawable/ic_menu_delete"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:tint="#FFFFFF"
+                        android:contentDescription="Delete Selected"
+                        android:visibility="gone"/>
                 </RelativeLayout>
 
                 <!-- Month Display -->
@@ -256,12 +268,23 @@
                     android:layout_marginBottom="16dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="Shift List"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#1A202C"/>
+
+                    <CheckBox
+                        android:id="@+id/cbSelectAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Select All"
+                        android:textSize="12sp"
+                        android:textColor="#718096"
+                        android:buttonTint="#10B981"
+                        android:layout_marginEnd="12dp"/>
                     
                     <View
                         android:layout_width="0dp"

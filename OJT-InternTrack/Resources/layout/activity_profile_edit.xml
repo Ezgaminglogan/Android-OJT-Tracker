@@ -219,23 +219,24 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="OJT Start Date"
+                        android:text="OJT Start Date (Locked - Set in Schedule)"
                         android:textSize="12sp"
                         android:textStyle="bold"
-                        android:textColor="#718096"
+                        android:textColor="#A0AEC0"
                         android:layout_marginBottom="6dp"/>
 
                     <LinearLayout
                         android:id="@+id/startDatePickerContainer"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:background="@drawable/input_background"
+                        android:background="@drawable/input_background_disabled"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:paddingStart="16dp"
                         android:paddingEnd="16dp"
-                        android:clickable="true"
-                        android:focusable="true">
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:enabled="false">
 
                         <TextView
                             android:id="@+id/startDateText"
@@ -244,12 +245,12 @@
                             android:layout_weight="1"
                             android:text="Select Start Date"
                             android:textSize="15sp"
-                            android:textColor="#1A202C"/>
+                            android:textColor="#A0AEC0"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="📅"
+                            android:text="🔒"
                             android:textSize="18sp"/>
                     </LinearLayout>
                 </LinearLayout>

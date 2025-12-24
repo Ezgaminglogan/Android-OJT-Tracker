@@ -629,7 +629,24 @@ namespace OJT_InternTrack.Database
 
                         if (exists == 0)
                         {
-                            return;
+                            // Create new schedule entry
+                            var values = new ContentValues();
+                            values.Put(ColUserId, userId);
+                            values.Put(ColTitle, "Internship Shift");
+                            values.Put(ColLocation, "Main Location");
+                            values.Put(ColStartDate, currentDate.ToString("yyyy-MM-dd"));
+                            values.Put(ColEndDate, currentDate.ToString("yyyy-MM-dd"));
+                            values.Put(ColStartTime, shiftStartStr);
+                            values.Put(ColEndTime, shiftEndStr);
+                            values.Put(ColBreakStart, breakStartStr);
+                            values.Put(ColBreakEnd, breakEndStr);
+                            values.Put(ColType, "Work");
+                            values.Put(ColIsCompleted, 0);
+                            values.Put(ColAlarmEnabled, 1);
+                            values.Put(ColAlarmMinutes, 5); // Default
+
+                            db.Insert(TableSchedules, null, values);
+                            remainingHours -= hoursPerDay;
                         }
                     }
 

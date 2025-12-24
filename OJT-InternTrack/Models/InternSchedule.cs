@@ -15,7 +15,7 @@ namespace OJT_InternTrack.Models
         public bool IsRecurring { get; set; }
         public string RecurringDays { get; set; } = string.Empty; // "Mon,Wed,Fri"
         public bool AlarmEnabled { get; set; }
-        public int AlarmMinutesBefore { get; set; } = 30;
+        public int AlarmMinutesBefore { get; set; } = 5;
         public bool IsCompleted { get; set; }
         public string Type { get; set; } = "Work"; // Work, Training, Meeting, etc.
         public string AlarmSoundUri { get; set; } = string.Empty;

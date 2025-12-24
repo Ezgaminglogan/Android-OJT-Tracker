@@ -24,6 +24,9 @@ namespace OJT_InternTrack.Activities
         private LinearLayout? todaySessionCard;
         private TextView? currentMonthYearText;
         private LinearLayout? scheduleListContainer;
+        private ImageButton? batchDeleteButton;
+        private CheckBox? selectAllCheckBox;
+        private HashSet<int> selectedShifts = new HashSet<int>();
         private static readonly int RequestCodeRingtone = 1001;
         private string? tempSelectedSoundUri;
         private TextView? tempSelectedSoundText;
@@ -44,6 +47,32 @@ namespace OJT_InternTrack.Activities
             UpdateMonthDisplay();
             UpdateTodaySession();
             PopulateScheduleList();
+
+            RequestAlarmPermissions();
+        }
+
+        private void RequestAlarmPermissions()
+        {
+#pragma warning disable CA1416
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu)
+            {
+                if (CheckSelfPermission(Android.Manifest.Permission.PostNotifications) != Android.Content.PM.Permission.Granted)
+                {
+                    RequestPermissions(new[] { Android.Manifest.Permission.PostNotifications }, 101);
+                }
+            }
+
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.S)
+            {
+                var alarmManager = GetSystemService(AlarmService) as AlarmManager;
+                if (alarmManager != null && !alarmManager.CanScheduleExactAlarms())
+                {
+                    var intent = new Intent(Android.Provider.Settings.ActionRequestScheduleExactAlarm);
+                    StartActivity(intent);
+                    Toast.MakeText(this, "Please allow exact alarms for internship reminders", ToastLength.Long)?.Show();
+                }
+            }
+#pragma warning restore CA1416
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
@@ -116,12 +145,28 @@ namespace OJT_InternTrack.Activities
             currentMonthYearText = FindViewById<TextView>(Resource.Id.currentMonthYearText);
             scheduleListContainer = FindViewById<LinearLayout>(Resource.Id.scheduleListContainer);
             alarmStatusText = FindViewById<TextView>(Resource.Id.alarmStatusText);
+            int batchDeleteId = Resources.GetIdentifier("btnBatchDelete", "id", PackageName ?? "");
+            int layoutId = Resources.GetIdentifier("notification_alarm", "layout", PackageName ?? "");
+            if (batchDeleteId != 0) batchDeleteButton = FindViewById<ImageButton>(batchDeleteId);
+            
+            int selectAllId = Resources.GetIdentifier("cbSelectAll", "id", PackageName ?? "");
+            if (selectAllId != 0) selectAllCheckBox = FindViewById<CheckBox>(selectAllId);
         }
 
 
 
         private void SetupEventHandlers()
         {
+            if (batchDeleteButton != null)
+            {
+                batchDeleteButton.Click += BatchDeleteButton_Click;
+            }
+
+            if (selectAllCheckBox != null)
+            {
+                selectAllCheckBox.CheckedChange += SelectAllCheckBox_CheckedChange;
+            }
+
             if (backButton != null)
             {
                 backButton.Click += (s, e) => Finish();
@@ -295,39 +340,26 @@ namespace OJT_InternTrack.Activities
 
         private void ShowAlarmTimePickerDialog(InternSchedule schedule)
         {
-            var items = new[] { "15 minutes before", "30 minutes before", "45 minutes before", "1 hour before", "2 hours before", "🎵 Change Alarm Sound" };
-            var minutes = new[] { 15, 30, 45, 60, 120 };
-
             var builder = new AlertDialog.Builder(this);
-            builder.SetTitle("Set Alarm Time");
-            builder.SetItems(items, (s, args) =>
+            builder.SetTitle("Alarm Settings");
+            builder.SetMessage("Reminder: 5 Minutes Before Shift\n\nChange notification sound?");
+            builder.SetPositiveButton("Change Sound", (s, args) =>
             {
-                if (args.Which < minutes.Length)
-                {
-                    schedule.AlarmMinutesBefore = minutes[args.Which];
-                    schedule.AlarmEnabled = true;
-                    UpdateAlarmInDatabase(schedule);
-                    SetAlarm(schedule);
-                    UpdateTodaySession();
-                    ToastUtils.ShowCustomToast(this, $"Alarm updated to {schedule.GetAlarmTime()}");
-                }
-                else
-                {
-                    // Select sound
-                    tempEditingSchedule = schedule;
-                    tempSelectedSoundText = null;
-                    
-                    var intent = new Intent(Android.Media.RingtoneManager.ActionRingtonePicker);
-                    intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneTitle, "Select Alarm Sound");
-                    intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneType, (int)Android.Media.RingtoneType.Alarm);
-                    intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneShowDefault, true);
-                    intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneShowSilent, false);
-                    if (!string.IsNullOrEmpty(schedule.AlarmSoundUri))
-                        intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneExistingUri, Android.Net.Uri.Parse(schedule.AlarmSoundUri));
-                    
-                    StartActivityForResult(intent, RequestCodeRingtone);
-                }
+                // Select sound
+                tempEditingSchedule = schedule;
+                tempSelectedSoundText = null;
+                
+                var intent = new Intent(Android.Media.RingtoneManager.ActionRingtonePicker);
+                intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneTitle, "Select Alarm Sound");
+                intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneType, (int)Android.Media.RingtoneType.Alarm);
+                intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneShowDefault, true);
+                intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneShowSilent, false);
+                if (!string.IsNullOrEmpty(schedule.AlarmSoundUri))
+                    intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneExistingUri, Android.Net.Uri.Parse(schedule.AlarmSoundUri));
+                
+                StartActivityForResult(intent, RequestCodeRingtone);
             });
+            builder.SetNegativeButton("Cancel", (s, args) => { });
             builder.Show();
         }
 
@@ -426,6 +458,7 @@ namespace OJT_InternTrack.Activities
             var editTitle = view.FindViewById<EditText>(Resource.Id.editTitle);
             var editLocation = view.FindViewById<EditText>(Resource.Id.editLocation);
             var textSelectedDate = view.FindViewById<TextView>(Resource.Id.textSelectedDate);
+            DateTime selectedDate = DateTime.Today;
             var textStartTime = view.FindViewById<TextView>(Resource.Id.textStartTime);
             var textEndTime = view.FindViewById<TextView>(Resource.Id.textEndTime);
             var spinnerType = view.FindViewById<Spinner>(Resource.Id.spinnerType);
@@ -434,24 +467,6 @@ namespace OJT_InternTrack.Activities
             var datePickerContainer = view.FindViewById<LinearLayout>(Resource.Id.datePickerContainer);
             var startTimeContainer = view.FindViewById<LinearLayout>(Resource.Id.startTimeContainer);
             var endTimeContainer = view.FindViewById<LinearLayout>(Resource.Id.endTimeContainer);
-            var soundPickerContainer = view.FindViewById<LinearLayout>(Resource.Id.soundPickerContainer);
-            var textSelectedSound = view.FindViewById<TextView>(Resource.Id.textSelectedSound);
-
-            tempSelectedSoundText = textSelectedSound;
-            tempSelectedSoundUri = string.Empty;
-
-            if (soundPickerContainer != null)
-            {
-                soundPickerContainer.Click += (s, e) =>
-                {
-                    var intent = new Intent(Android.Media.RingtoneManager.ActionRingtonePicker);
-                    intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneTitle, "Select Alarm Sound");
-                    intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneType, (int)Android.Media.RingtoneType.Alarm);
-                    intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneShowDefault, true);
-                    intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneShowSilent, false);
-                    StartActivityForResult(intent, RequestCodeRingtone);
-                };
-            }
 
             // Plan Section Views
             var planHours = view.FindViewById<EditText>(Resource.Id.planHours);
@@ -466,10 +481,10 @@ namespace OJT_InternTrack.Activities
             var fixedShiftEndContainer = view.FindViewById<LinearLayout>(Resource.Id.fixedShiftEndContainer);
             var breakStartContainer = view.FindViewById<LinearLayout>(Resource.Id.breakStartContainer);
             var breakEndContainer = view.FindViewById<LinearLayout>(Resource.Id.breakEndContainer);
+            
 
             // Load Existing Plan Data
             int requiredHours = 600;
-            DateTime planStartDate = DateTime.Today;
             string workDays = "1,1,1,1,1,0,0"; 
             TimeSpan shiftStart = new TimeSpan(8, 0, 0);
             TimeSpan shiftEnd = new TimeSpan(17, 0, 0);
@@ -486,8 +501,11 @@ namespace OJT_InternTrack.Activities
                     if (requiredHours <= 0) requiredHours = 600;
                     
                     string? sdStr = cursor.GetString(1);
-                    if (!string.IsNullOrEmpty(sdStr) && DateTime.TryParse(sdStr, out var sd)) planStartDate = sd;
-
+                    if (!string.IsNullOrEmpty(sdStr) && DateTime.TryParse(sdStr, out var sd)) 
+                    {
+                        selectedDate = sd;
+                    }
+                    
                     string? wdStr = cursor.GetString(2);
                     if (!string.IsNullOrEmpty(wdStr)) workDays = wdStr;
                     
@@ -503,6 +521,7 @@ namespace OJT_InternTrack.Activities
             if (textFixedShiftEnd != null) textFixedShiftEnd.Text = DateTime.Today.Add(shiftEnd).ToString("hh:mm tt");
             if (textBreakStart != null) textBreakStart.Text = DateTime.Today.Add(breakStart).ToString("hh:mm tt");
             if (textBreakEnd != null) textBreakEnd.Text = DateTime.Today.Add(breakEnd).ToString("hh:mm tt");
+            if (textSelectedDate != null) textSelectedDate.Text = selectedDate.ToString("MMM dd, yyyy");
 
             // DAY TOGGLE LOGIC
             TextView[] dayViews = new TextView[7];
@@ -556,7 +575,7 @@ namespace OJT_InternTrack.Activities
                 }
 
                 int daysNeeded = (int)Math.Ceiling(remaining / netHoursPerDay);
-                DateTime current = DateTime.Today;
+                DateTime current = selectedDate;
                 int count = 0;
                 
                 // Check if today is a work day
@@ -572,6 +591,7 @@ namespace OJT_InternTrack.Activities
                 textPlanProjection.Text = $"{current:MMM dd, yyyy}";
             };
             updateProjection();
+
 
             for(int i=0; i<7; i++) if(dayViews[i] != null) dayViews[i].Click += (s,e) => updateProjection();
             if (planHours != null) planHours.TextChanged += (s, e) => updateProjection();
@@ -607,7 +627,7 @@ namespace OJT_InternTrack.Activities
             };
 
             // Default shift values
-            DateTime selectedDate = DateTime.Today;
+            selectedDate = DateTime.Today;
             TimeSpan startTime = shiftStart;
             TimeSpan endTime = shiftEnd;
 
@@ -630,6 +650,7 @@ namespace OJT_InternTrack.Activities
                     {
                         selectedDate = args.Date;
                         if (textSelectedDate != null) textSelectedDate.Text = selectedDate.ToString("MMM dd, yyyy");
+                        updateProjection();
                     }, selectedDate.Year, selectedDate.Month - 1, selectedDate.Day);
                     picker.Show();
                 };
@@ -683,7 +704,11 @@ namespace OJT_InternTrack.Activities
                         values.Put(DatabaseHelper.ColFixedShiftEnd, shiftEnd.ToString(@"hh\:mm\:ss"));
                         values.Put(DatabaseHelper.ColBreakStart, breakStart.ToString(@"hh\:mm\:ss"));
                         values.Put(DatabaseHelper.ColBreakEnd, breakEnd.ToString(@"hh\:mm\:ss"));
+                        values.Put(DatabaseHelper.ColOJTStartDate, selectedDate.ToString("yyyy-MM-dd"));
                         db.Update(DatabaseHelper.TableUsers, values, $"{DatabaseHelper.ColUserId} = ?", new[] { userId.ToString() });
+                        
+                        // Regenerate future schedules based on new plan
+                        dbHelper.RegenerateSchedule(userId, selectedDate);
                     }
                     
                     // 2. Save New Shift (if title is present)
@@ -705,7 +730,7 @@ namespace OJT_InternTrack.Activities
                             BreakStart = breakStart,
                             BreakEnd = breakEnd,
                             AlarmEnabled = true,
-                            AlarmMinutesBefore = 30,
+                            AlarmMinutesBefore = 5,
                             AlarmSoundUri = tempSelectedSoundUri ?? string.Empty
                         };
 
@@ -767,6 +792,22 @@ namespace OJT_InternTrack.Activities
                 card.SetBackgroundResource(Resource.Drawable.quick_action_card);
                 card.SetPadding(ConvertDpToPx(16), ConvertDpToPx(16), ConvertDpToPx(16), ConvertDpToPx(16));
                 card.Elevation = 2;
+
+                // Checkbox for selection
+                var checkBox = new CheckBox(this)
+                {
+                    LayoutParameters = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent)
+                    {
+                        RightMargin = ConvertDpToPx(8)
+                    }
+                };
+                checkBox.Checked = selectedShifts.Contains(schedule.Id);
+                checkBox.CheckedChange += (s, e) =>
+                {
+                    if (e.IsChecked) selectedShifts.Add(schedule.Id);
+                    else selectedShifts.Remove(schedule.Id);
+                    UpdateBatchDeleteButtonVisibility();
+                };
 
                 // Date Section
                 var dateLayout = new LinearLayout(this)
@@ -853,6 +894,7 @@ namespace OJT_InternTrack.Activities
                     }
                 };
 
+                card.AddView(checkBox);
                 card.AddView(dateLayout);
                 card.AddView(infoLayout);
                 card.AddView(pSwitch);
@@ -878,6 +920,71 @@ namespace OJT_InternTrack.Activities
                 };
 
                 scheduleListContainer.AddView(card);
+            }
+            UpdateBatchDeleteButtonVisibility();
+        }
+
+        private void BatchDeleteButton_Click(object? sender, EventArgs e)
+        {
+            if (selectedShifts.Count == 0) return;
+
+            var builder = new AlertDialog.Builder(this);
+            builder.SetTitle("Delete Selected Shifts");
+            builder.SetMessage($"Are you sure you want to delete {selectedShifts.Count} selected shifts?");
+            builder.SetPositiveButton("Delete", (sd, args) =>
+            {
+                if (dbHelper != null)
+                {
+                    int deletedCount = 0;
+                    foreach (var id in selectedShifts)
+                    {
+                        if (dbHelper.DeleteSchedule(id)) deletedCount++;
+                    }
+                    ToastUtils.ShowCustomToast(this, $"{deletedCount} shifts removed");
+                    selectedShifts.Clear();
+                    LoadData();
+                    UpdateTodaySession();
+                    PopulateScheduleList();
+                }
+            });
+            builder.SetNegativeButton("Cancel", (sd, args) => { });
+            builder.Show();
+        }
+
+        private void SelectAllCheckBox_CheckedChange(object? sender, CompoundButton.CheckedChangeEventArgs e)
+        {
+            var upcomingSchedules = schedules.Where(s => !s.IsToday() && s.StartDate >= DateTime.Today).ToList();
+            if (e.IsChecked)
+            {
+                foreach (var s in upcomingSchedules) selectedShifts.Add(s.Id);
+            }
+            else
+            {
+                // Only clear if we are genuinely unchecking manually
+                // We need to be careful not to create an infinite loop if PopulateScheduleList resets this
+                selectedShifts.Clear();
+            }
+            PopulateScheduleList();
+        }
+
+        private void UpdateBatchDeleteButtonVisibility()
+        {
+            if (batchDeleteButton != null)
+            {
+                batchDeleteButton.Visibility = selectedShifts.Count > 0 ? ViewStates.Visible : ViewStates.Gone;
+            }
+
+            // Sync Select All checkbox
+            var upcomingSchedules = schedules.Where(s => !s.IsToday() && s.StartDate >= DateTime.Today).ToList();
+            if (selectAllCheckBox != null && upcomingSchedules.Count > 0)
+            {
+                selectAllCheckBox.CheckedChange -= SelectAllCheckBox_CheckedChange;
+                selectAllCheckBox.Checked = upcomingSchedules.All(s => selectedShifts.Contains(s.Id));
+                selectAllCheckBox.CheckedChange += SelectAllCheckBox_CheckedChange;
+            }
+            else if (selectAllCheckBox != null)
+            {
+                selectAllCheckBox.Checked = false;
             }
         }
 

@@ -6,8 +6,12 @@
     <activity android:name=".Activities.TasksActivity" />
     <activity android:name=".Activities.ReportsActivity" />
     <activity android:name=".Activities.AboutActivity" />
-    <!-- Alarm Receiver -->
-    <receiver android:name=".AlarmReceiver" android:enabled="true" android:exported="true" />
+    <!-- Alarm Components -->
+    <receiver android:name="com.companyname.OJT_InternTrack.AlarmReceiver" android:enabled="true" android:exported="true" />
+    <receiver android:name="com.companyname.OJT_InternTrack.AlarmActionReceiver" android:enabled="true" android:exported="false" />
+    <service android:name="com.companyname.OJT_InternTrack.AlarmService" android:enabled="true" android:exported="false" android:foregroundServiceType="specialUse">
+      <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Alarm and notification for scheduled internship shifts" />
+    </service>
   </application>
   
   <!-- Permissions -->
@@ -18,4 +22,6 @@
   <uses-permission android:name="android.permission.VIBRATE" />
   <uses-permission android:name="android.permission.WAKE_LOCK" />
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 </manifest>

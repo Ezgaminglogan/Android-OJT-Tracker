@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <!-- Left Icon Column -->
+    <LinearLayout
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/circle_day_active"
+        android:gravity="center"
+        android:layout_marginEnd="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏰"
+            android:textSize="24sp"/>
+    </LinearLayout>
+
+    <!-- Content Column -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/notif_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Upcoming Shift"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1A202C"/>
+
+        <TextView
+            android:id="@+id/notif_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="08:00 AM"
+            android:textSize="14sp"
+            android:textColor="#10B981"
+            android:textStyle="bold"
+            android:layout_marginTop="2dp"/>
+
+        <TextView
+            android:id="@+id/notif_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📍 Main Office"
+            android:textSize="12sp"
+            android:textColor="#718096"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+
+    <!-- Dismiss Button -->
+    <Button
+        android:id="@+id/btn_notif_dismiss"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="Dismiss"
+        android:backgroundTint="#FEE2E2"
+        android:textColor="#EF4444"
+        android:textAllCaps="false"
+        android:textSize="12sp"
+        android:layout_gravity="center_vertical"
+        style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+</LinearLayout>

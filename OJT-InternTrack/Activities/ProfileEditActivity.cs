@@ -196,24 +196,6 @@ namespace OJT_InternTrack.Activities
                 saveButton.Click += SaveButton_Click;
             }
 
-            if (startDatePickerContainer != null)
-            {
-                startDatePickerContainer.Click += StartDatePickerContainer_Click;
-            }
-        }
-
-        private void StartDatePickerContainer_Click(object? sender, EventArgs e)
-        {
-            DateTime date = selectedStartDate ?? DateTime.Today;
-            var picker = new DatePickerDialog(this, (s, args) =>
-            {
-                selectedStartDate = args.Date;
-                if (startDateText != null)
-                {
-                    startDateText.Text = selectedStartDate.Value.ToString("MMM dd, yyyy");
-                }
-            }, date.Year, date.Month - 1, date.Day);
-            picker.Show();
         }
 
         private void ChangePhotoButton_Click(object? sender, EventArgs e)
