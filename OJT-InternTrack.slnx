@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="OJT-InternTrack/OJT-InternTrack.csproj" />
+  <Project Path="OJT-InternTrack/OJT-InternTrack.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
 </Solution>
