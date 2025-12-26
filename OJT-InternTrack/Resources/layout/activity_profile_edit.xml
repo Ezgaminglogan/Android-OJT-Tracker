@@ -87,14 +87,16 @@
 
                     <ImageButton
                         android:id="@+id/changePhotoButton"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@android:drawable/ic_menu_camera"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_camera"
+                        android:scaleType="centerInside"
                         android:background="@drawable/camera_button_background"
                         android:layout_gravity="bottom|end"
-                        android:elevation="6dp"
-                        android:padding="8dp"
-                        android:tint="#FFFFFF"/>
+                        android:elevation="8dp"
+                        android:padding="10dp"
+                        android:tint="#FFFFFF"
+                        android:contentDescription="Change Photo"/>
                 </FrameLayout>
             </RelativeLayout>
 
@@ -247,11 +249,11 @@
                             android:textSize="15sp"
                             android:textColor="#A0AEC0"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🔒"
-                            android:textSize="18sp"/>
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_lock"
+                            android:tint="#A0AEC0"/>
                     </LinearLayout>
                 </LinearLayout>
 

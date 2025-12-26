@@ -167,12 +167,11 @@
                         android:orientation="horizontal"
                         android:gravity="center_vertical">
 
-                        <TextView
+                        <ImageView
                             android:layout_width="56dp"
                             android:layout_height="56dp"
-                            android:text="🎯"
-                            android:textSize="28sp"
-                            android:gravity="center"
+                            android:src="@drawable/ic_target"
+                            android:padding="14dp"
                             android:background="@drawable/circle_background_light_green"
                             android:layout_marginEnd="16dp"/>
 
@@ -205,7 +204,10 @@
                                 android:id="@+id/alarmStatusText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="⏰ Alarm: 30m before"
+                                android:text="Alarm: 30m before"
+                                android:drawableStart="@drawable/ic_alarm"
+                                android:drawablePadding="4dp"
+                                android:gravity="center_vertical"
                                 android:textSize="12sp"
                                 android:textColor="#FFFFFF"
                                 android:textStyle="bold"
@@ -236,7 +238,10 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="📍 Main Office"
+                            android:text="Main Office"
+                            android:drawableStart="@drawable/ic_location"
+                            android:drawablePadding="6dp"
+                            android:gravity="center_vertical"
                             android:textSize="13sp"
                             android:textColor="#FFFFFF"
                             android:textStyle="bold"/>

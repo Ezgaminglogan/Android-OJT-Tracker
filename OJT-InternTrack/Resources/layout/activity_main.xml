@@ -137,12 +137,17 @@
                         android:id="@+id/editProfileButton"
                         android:layout_width="wrap_content"
                         android:layout_height="32dp"
-                        android:text="✏️ Edit"
+                        android:text="Edit"
+                        android:drawableStart="@drawable/ic_edit"
+                        android:drawableTint="#1A202C"
+                        android:drawablePadding="6dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="16dp"
                         android:textSize="11sp"
+                        android:textStyle="bold"
                         android:textColor="#1A202C"
                         android:background="@drawable/button_profile_edit"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
+                        android:textAllCaps="false"
                         android:layout_marginTop="12dp"/>
                 </LinearLayout>
             </RelativeLayout>
@@ -168,7 +173,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:weightSum="3">
 
                     <!-- Total Hours Card -->
                     <LinearLayout
@@ -178,31 +183,32 @@
                         android:orientation="vertical"
                         android:gravity="center"
                         android:background="@drawable/stat_card_background"
-                        android:padding="20dp"
+                        android:padding="16dp"
                         android:layout_margin="6dp"
                         android:elevation="3dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="⏳"
-                            android:textSize="32sp"
-                            android:layout_marginBottom="8dp"/>
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_timer"
+                            android:tint="#10B981"
+                            android:layout_marginBottom="6dp"/>
 
                         <TextView
                             android:id="@+id/totalHoursValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0.0"
-                            android:textSize="26sp"
+                            android:textSize="22sp"
                             android:textStyle="bold"
-                            android:textColor="#10B981"/>
+                            android:textColor="#10B981"
+                            android:layout_marginBottom="2dp"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Total Hours"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textStyle="bold"
                             android:textColor="#718096"/>
                     </LinearLayout>
@@ -215,31 +221,70 @@
                         android:orientation="vertical"
                         android:gravity="center"
                         android:background="@drawable/stat_card_background"
-                        android:padding="20dp"
+                        android:padding="16dp"
                         android:layout_margin="6dp"
                         android:elevation="3dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="☑️"
-                            android:textSize="32sp"
-                            android:layout_marginBottom="8dp"/>
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_check_circle"
+                            android:tint="#3B82F6"
+                            android:layout_marginBottom="6dp"/>
 
                         <TextView
                             android:id="@+id/tasksCompletedValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textSize="26sp"
+                            android:textSize="22sp"
                             android:textStyle="bold"
-                            android:textColor="#3B82F6"/>
+                            android:textColor="#3B82F6"
+                            android:layout_marginBottom="2dp"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tasks Done"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#718096"/>
+                    </LinearLayout>
+
+                    <!-- Target Hours Card -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:background="@drawable/stat_card_background"
+                        android:padding="16dp"
+                        android:layout_margin="6dp"
+                        android:elevation="3dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_school"
+                            android:tint="#F59E0B"
+                            android:layout_marginBottom="6dp"/>
+
+                        <TextView
+                            android:id="@+id/targetHoursValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="600"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="#F59E0B"
+                            android:layout_marginBottom="2dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Target"
+                            android:textSize="11sp"
                             android:textStyle="bold"
                             android:textColor="#718096"/>
                     </LinearLayout>
@@ -321,12 +366,11 @@
                         android:clickable="true"
                         android:focusable="true">
 
-                        <TextView
+                        <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:text="📅"
-                            android:textSize="24sp"
-                            android:gravity="center"
+                            android:src="@drawable/ic_calendar"
+                            android:padding="12dp"
                             android:background="@drawable/circle_background_light_green"
                             android:layout_marginEnd="16dp"/>
 
@@ -403,12 +447,12 @@
                         android:paddingBottom="20dp"
                         android:elevation="2dp">
 
-                        <TextView
+                        <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:text="⏰"
-                            android:textSize="28sp"
-                            android:gravity="center"
+                            android:src="@drawable/ic_alarm"
+                            android:padding="10dp"
+                            android:tint="#10B981"
                             android:background="@drawable/circle_background_light_green"
                             android:layout_marginBottom="12dp"/>
 
@@ -445,12 +489,12 @@
                         android:paddingBottom="20dp"
                         android:elevation="2dp">
 
-                        <TextView
+                        <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:text="📅"
-                            android:textSize="28sp"
-                            android:gravity="center"
+                            android:src="@drawable/ic_calendar"
+                            android:padding="10dp"
+                            android:tint="#3B82F6"
                             android:background="@drawable/circle_background_light_blue"
                             android:layout_marginBottom="12dp"/>
 
@@ -487,12 +531,12 @@
                         android:paddingBottom="20dp"
                         android:elevation="2dp">
 
-                        <TextView
+                        <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:text="📝"
-                            android:textSize="28sp"
-                            android:gravity="center"
+                            android:src="@drawable/ic_task"
+                            android:padding="10dp"
+                            android:tint="#F59E0B"
                             android:background="@drawable/circle_background_light_orange"
                             android:layout_marginBottom="12dp"/>
 
@@ -529,12 +573,12 @@
                         android:paddingBottom="20dp"
                         android:elevation="2dp">
 
-                        <TextView
+                        <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:text="📊"
-                            android:textSize="28sp"
-                            android:gravity="center"
+                            android:src="@drawable/ic_report"
+                            android:padding="10dp"
+                            android:tint="#8B5CF6"
                             android:background="@drawable/circle_background_light_purple"
                             android:layout_marginBottom="12dp"/>
 

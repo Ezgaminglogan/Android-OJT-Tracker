@@ -21,6 +21,7 @@ namespace OJT_InternTrack
         private ImageButton? infoButton;
         private TextView? totalHoursValue;
         private TextView? tasksCompletedValue;
+        private TextView? targetHoursValue;
         private LinearLayout? timeTrackingButton;
         private LinearLayout? scheduleButton;
         private LinearLayout? tasksButton;
@@ -75,7 +76,8 @@ namespace OJT_InternTrack
             logoutButton = FindViewById<ImageButton>(Resource.Id.logoutButton);
             infoButton = FindViewById<ImageButton>(Resource.Id.infoButton);
             totalHoursValue = FindViewById<TextView>(Resource.Id.totalHoursValue);
-             tasksCompletedValue = FindViewById<TextView>(Resource.Id.tasksCompletedValue);
+            tasksCompletedValue = FindViewById<TextView>(Resource.Id.tasksCompletedValue);
+            targetHoursValue = FindViewById<TextView>(Resource.Id.targetHoursValue);
             timeTrackingButton = FindViewById<LinearLayout>(Resource.Id.timeTrackingButton);
             scheduleButton = FindViewById<LinearLayout>(Resource.Id.scheduleButton);
             tasksButton = FindViewById<LinearLayout>(Resource.Id.tasksButton);
@@ -99,7 +101,7 @@ namespace OJT_InternTrack
             if (dbHelper != null && !string.IsNullOrEmpty(userEmail))
             {
                 string fullName = dbHelper.GetUserFullName(userEmail);
-                
+
                 if (userFullNameText != null)
                 {
                     userFullNameText.Text = fullName;
@@ -163,7 +165,7 @@ namespace OJT_InternTrack
         private Android.Graphics.Bitmap GetCircularBitmap(Android.Graphics.Bitmap bitmap)
         {
             int size = Math.Min(bitmap.Width, bitmap.Height);
-            
+
             var output = Android.Graphics.Bitmap.CreateBitmap(size, size, Android.Graphics.Bitmap.Config.Argb8888!);
             var canvas = new Android.Graphics.Canvas(output);
 
@@ -179,12 +181,12 @@ namespace OJT_InternTrack
 
             // Cut out the middle
             paint.SetXfermode(new Android.Graphics.PorterDuffXfermode(Android.Graphics.PorterDuff.Mode.SrcIn!));
-            
+
             // Center the source bitmap
             int xOffset = (bitmap.Width - size) / 2;
             int yOffset = (bitmap.Height - size) / 2;
             var srcRect = new Android.Graphics.Rect(xOffset, yOffset, xOffset + size, yOffset + size);
-            
+
             canvas.DrawBitmap(bitmap, srcRect, rect, paint);
 
             return output;
@@ -196,7 +198,7 @@ namespace OJT_InternTrack
 
             // Load completed hours
             double totalCompletedHours = dbHelper.GetTotalHoursWorked(userId);
-            
+
             // Check for active session
             var activeEntry = dbHelper.GetActiveTimeEntry(userId);
             double currentSessionHours = 0;
@@ -207,7 +209,7 @@ namespace OJT_InternTrack
 
             if (totalHoursValue != null)
             {
-                totalHoursValue.Text = $"{ (totalCompletedHours + currentSessionHours):F1}";
+                totalHoursValue.Text = $"{(totalCompletedHours + currentSessionHours):F1}";
             }
 
             // Load completed tasks count
@@ -231,26 +233,48 @@ namespace OJT_InternTrack
         {
             if (dbHelper == null || userId == -1) return;
 
-            // Get required hours and start date from DB
-            int requiredHours = 600; 
+            // Get user settings for accurate projection
+            int requiredHours = 600;
             DateTime? ojtStartDate = null;
+            bool[] workDays = new bool[7] { true, true, true, true, true, false, false }; // Mon-Sun
+            TimeSpan shiftStart = new TimeSpan(8, 0, 0);
+            TimeSpan shiftEnd = new TimeSpan(17, 0, 0);
+            TimeSpan breakStart = new TimeSpan(12, 0, 0);
+            TimeSpan breakEnd = new TimeSpan(13, 0, 0);
+
             var db = dbHelper.ReadableDatabase;
             if (db != null)
             {
-                var cursor = db.RawQuery($"SELECT {DatabaseHelper.ColRequiredHours}, {DatabaseHelper.ColOJTStartDate} FROM {DatabaseHelper.TableUsers} WHERE {DatabaseHelper.ColUserId} = ?", new[] { userId.ToString() });
+                var cursor = db.RawQuery(
+                    $"SELECT {DatabaseHelper.ColRequiredHours}, {DatabaseHelper.ColOJTStartDate}, {DatabaseHelper.ColWorkDays}, " +
+                    $"{DatabaseHelper.ColFixedShiftStart}, {DatabaseHelper.ColFixedShiftEnd}, {DatabaseHelper.ColBreakStart}, {DatabaseHelper.ColBreakEnd} " +
+                    $"FROM {DatabaseHelper.TableUsers} WHERE {DatabaseHelper.ColUserId} = ?",
+                    new[] { userId.ToString() }
+                );
+
                 if (cursor != null && cursor.MoveToFirst())
                 {
                     requiredHours = cursor.GetInt(0);
                     if (requiredHours <= 0) requiredHours = 600;
-                    
+
                     string? startDateStr = cursor.GetString(1);
                     if (!string.IsNullOrEmpty(startDateStr) && DateTime.TryParse(startDateStr, out var sd))
-                    {
                         ojtStartDate = sd;
-                    }
+
+                    string workDaysStr = cursor.GetString(2) ?? "1,1,1,1,1,0,0";
+                    workDays = workDaysStr.Split(',').Select(s => s.Trim() == "1").ToArray();
+
+                    if (TimeSpan.TryParse(cursor.GetString(3), out var ts)) shiftStart = ts;
+                    if (TimeSpan.TryParse(cursor.GetString(4), out var te)) shiftEnd = te;
+                    if (TimeSpan.TryParse(cursor.GetString(5), out var bs)) breakStart = bs;
+                    if (TimeSpan.TryParse(cursor.GetString(6), out var be)) breakEnd = be;
                 }
                 cursor?.Close();
             }
+
+            // Update Target Hours Card
+            if (targetHoursValue != null)
+                targetHoursValue.Text = requiredHours.ToString();
 
             // Calculate percentage
             int percentage = (int)((totalHours / requiredHours) * 100);
@@ -259,29 +283,47 @@ namespace OJT_InternTrack
             if (ojtProgressBar != null) ojtProgressBar.Progress = percentage;
             if (completionPercentageText != null) completionPercentageText.Text = $"{percentage}%";
 
-            // Project completion date
+            // Project completion date dynamically
             if (estimatedCompletionDate != null)
             {
                 double remainingHours = requiredHours - totalHours;
                 if (remainingHours <= 0)
                 {
-                    estimatedCompletionDate.Text = "OJT Completed! Well done. 🎉";
+                    estimatedCompletionDate.Text = "Goal Reached! OJT Completed.";
                 }
                 else
                 {
-                    // For projection, let's assume 8 hours per day average
-                    double avgHoursPerDay = 8.0; 
-                    double daysRemaining = remainingHours / avgHoursPerDay;
-                    
-                    // If start date is in the future, start counting from then
-                    DateTime startDateForCalc = DateTime.Now;
-                    if (ojtStartDate.HasValue && ojtStartDate.Value > DateTime.Now)
+                    // Calculate hours per workday
+                    double netHoursPerDay = (shiftEnd - shiftStart).TotalHours - (breakEnd - breakStart).TotalHours;
+                    if (netHoursPerDay <= 0) netHoursPerDay = 8.0;
+
+                    // Project forward skipping non-workdays
+                    DateTime current = DateTime.Today;
+                    if (ojtStartDate.HasValue && ojtStartDate.Value > current)
+                        current = ojtStartDate.Value;
+
+                    double accumulated = 0;
+                    int daysCount = 0;
+                    while (accumulated < remainingHours && daysCount < 1000) // Safety break at 1000 days
                     {
-                        startDateForCalc = ojtStartDate.Value;
+                        // Sunday is 0 in DayOfWeek, but in our array Mon=0...Sun=6
+                        // DayOfWeek: Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6
+                        int dayIdx = (int)current.DayOfWeek - 1;
+                        if (dayIdx < 0) dayIdx = 6; // Sunday fix
+
+                        if (workDays[dayIdx])
+                        {
+                            accumulated += netHoursPerDay;
+                        }
+
+                        if (accumulated < remainingHours)
+                        {
+                            current = current.AddDays(1);
+                            daysCount++;
+                        }
                     }
-                    
-                    DateTime estDate = startDateForCalc.AddDays(daysRemaining);
-                    estimatedCompletionDate.Text = $"Est. Completion: {estDate:MMM dd, yyyy}";
+
+                    estimatedCompletionDate.Text = $"Est. Finish: {current:MMM dd, yyyy}";
                 }
             }
         }
@@ -301,15 +343,16 @@ namespace OJT_InternTrack
             {
                 if (nextShiftCard != null) nextShiftCard.Visibility = ViewStates.Visible;
                 if (nextShiftTitle != null) nextShiftTitle.Text = nextShift.Title;
-                if (nextShiftTime != null) 
+                if (nextShiftTime != null)
                 {
                     string dateStr = nextShift.IsToday() ? "Today" : nextShift.StartDate.ToString("MMM dd");
                     nextShiftTime.Text = $"{dateStr} • {nextShift.GetFormattedTime()}";
                 }
-                
+
                 if (nextShiftCard != null)
                 {
-                    nextShiftCard.Click += (s, e) => {
+                    nextShiftCard.Click += (s, e) =>
+                    {
                         StartActivity(new Intent(this, typeof(Activities.ScheduleActivity)));
                     };
                 }
@@ -330,13 +373,14 @@ namespace OJT_InternTrack
             {
                 double completedHours = dbHelper.GetTotalHoursWorked(userId);
                 double currentSessionHours = (DateTime.Now - activeEntry.ClockInTime.Value).TotalHours;
-                
+
                 if (totalHoursValue != null)
                 {
-                    // Show 1 decimal point like the design, but it will update subtly every few seconds
-                    // Actually, let's use F2 or F1 depending on how fast it should look
                     totalHoursValue.Text = $"{(completedHours + currentSessionHours):F1}";
                 }
+
+                // Update progress bar in real-time too
+                LoadOJTProgress(completedHours + currentSessionHours);
             }
 
             // Run again in 5 seconds (dashboard doesn't need 1s resolution, but feels real-time)
@@ -396,13 +440,13 @@ namespace OJT_InternTrack
             view.SetBackgroundResource(Resource.Drawable.card_background);
 
             // Icon
-            var icon = new TextView(this)
+            var icon = new ImageView(this)
             {
-                Text = activity.GetIcon(),
-                TextSize = 24f,
-                Gravity = Android.Views.GravityFlags.Center,
                 LayoutParameters = new LinearLayout.LayoutParams(DpToPx(48), DpToPx(48))
             };
+            icon.SetImageResource(activity.GetIcon());
+            icon.SetPadding(DpToPx(12), DpToPx(12), DpToPx(12), DpToPx(12));
+            icon.SetColorFilter(Android.Graphics.Color.White);
             icon.SetBackgroundResource(Resource.Drawable.activity_icon_background);
             var iconParams = (LinearLayout.LayoutParams)icon.LayoutParameters;
             iconParams.SetMargins(0, 0, DpToPx(12), 0);

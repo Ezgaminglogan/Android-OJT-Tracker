@@ -218,10 +218,10 @@ namespace OJT_InternTrack.Activities
             {
                 var duration = DateTime.Now - activeEntry.ClockInTime.Value;
                 activeTimerText.Text = $"{(int)duration.TotalHours:D2}:{duration.Minutes:D2}:{duration.Seconds:D2}";
-                
+
                 // Keep the Today's Summary "Hours Worked" updating in real-time too
                 UpdateTodaySummary();
-                
+
                 timerHandler?.PostDelayed(UpdateTimer, 1000);
             }
         }
@@ -248,7 +248,7 @@ namespace OJT_InternTrack.Activities
             if (dbHelper == null) return;
 
             double totalHours = dbHelper.GetTodayTotalTimeHours(userId);
-            
+
             // Add active session hours if clocked in
             if (activeEntry?.ClockInTime != null)
             {
@@ -307,15 +307,15 @@ namespace OJT_InternTrack.Activities
             card.Elevation = 2;
 
             // Icon
-            var icon = new TextView(this)
+            var icon = new ImageView(this)
             {
-                Text = entry.Status == "active" ? "⏱️" : "✅",
-                TextSize = 20,
-                LayoutParameters = new LinearLayout.LayoutParams(Android.Views.ViewGroup.LayoutParams.WrapContent, Android.Views.ViewGroup.LayoutParams.WrapContent)
+                LayoutParameters = new LinearLayout.LayoutParams(DpToPx(32), DpToPx(32))
                 {
-                    RightMargin = 16
+                    RightMargin = DpToPx(16)
                 }
             };
+            icon.SetImageResource(entry.Status == "active" ? Resource.Drawable.ic_timer : Resource.Drawable.ic_check);
+            icon.SetColorFilter(entry.Status == "active" ? Android.Graphics.Color.ParseColor("#3B82F6") : Android.Graphics.Color.ParseColor("#10B981"));
 
             // Info
             var infoLayout = new LinearLayout(this)
@@ -334,7 +334,7 @@ namespace OJT_InternTrack.Activities
 
             var timeText = new TextView(this)
             {
-                Text = (entry.ClockInTime.HasValue && entry.ClockOutTime.HasValue) 
+                Text = (entry.ClockInTime.HasValue && entry.ClockOutTime.HasValue)
                     ? $"{entry.ClockInTime.Value:hh:mm tt} - {entry.ClockOutTime.Value:hh:mm tt} ({entry.TotalHours:F1}h)"
                     : (entry.ClockInTime.HasValue ? $"{entry.ClockInTime.Value:hh:mm tt} - Present (Active)" : "Unknown - Active"),
                 TextSize = 12
@@ -348,20 +348,24 @@ namespace OJT_InternTrack.Activities
             {
                 var notesText = new TextView(this)
                 {
-                    Text = $"📝 {entry.Notes}",
+                    Text = entry.Notes,
                     TextSize = 11,
                     Ellipsize = Android.Text.TextUtils.TruncateAt.End
                 };
                 notesText.SetMaxLines(1);
                 notesText.SetTextColor(Android.Graphics.Color.ParseColor("#4A5568"));
                 notesText.SetPadding(0, 4, 0, 0);
+                notesText.SetCompoundDrawablesWithIntrinsicBounds(Resource.Drawable.ic_edit, 0, 0, 0);
+                notesText.CompoundDrawablePadding = 8;
+                // Scale down the icon a bit if needed, but setCompoundDrawablesWithIntrinsicBounds usually works for small icons
                 infoLayout.AddView(notesText);
             }
 
             card.AddView(icon);
             card.AddView(infoLayout);
-            
-            card.Click += (s, e) => {
+
+            card.Click += (s, e) =>
+            {
                 ShowEntryDetailsDialog(entry);
             };
 
@@ -372,10 +376,10 @@ namespace OJT_InternTrack.Activities
         {
             var builder = new AlertDialog.Builder(this);
             builder.SetTitle("Session Details");
-            
+
             string message = $"Date: {entry.ClockInTime:MMMM dd, yyyy}\n" +
                              $"Clock In: {entry.ClockInTime:hh:mm:ss tt}\n";
-            
+
             if (entry.ClockOutTime.HasValue)
             {
                 message += $"Clock Out: {entry.ClockOutTime.Value:hh:mm:ss tt}\n" +
@@ -385,7 +389,7 @@ namespace OJT_InternTrack.Activities
             {
                 message += "Status: Currently Active\n";
             }
-            
+
             if (!string.IsNullOrEmpty(entry.Notes))
             {
                 message += $"\nNotes: {entry.Notes}";
@@ -393,14 +397,15 @@ namespace OJT_InternTrack.Activities
 
             builder.SetMessage(message);
             builder.SetPositiveButton("Close", (s, args) => { });
-            
+
             if (entry.Status != "active")
             {
-                builder.SetNeutralButton("Edit Notes", (s, args) => {
+                builder.SetNeutralButton("Edit Notes", (s, args) =>
+                {
                     ShowEditNotesDialog(entry);
                 });
             }
-            
+
             builder.Show();
         }
 
@@ -431,7 +436,7 @@ namespace OJT_InternTrack.Activities
             if (dbHelper == null) return;
 
             int entryId = dbHelper.ClockIn(userId);
-            
+
             if (entryId > 0)
             {
                 activeEntry = dbHelper.GetActiveTimeEntry(userId);
@@ -452,7 +457,7 @@ namespace OJT_InternTrack.Activities
             if (dbHelper == null || activeEntry == null) return;
 
             bool success = dbHelper.ClockOut(activeEntry.EntryId);
-            
+
             if (success)
             {
                 activeEntry = null;
@@ -496,6 +501,12 @@ namespace OJT_InternTrack.Activities
 
             builder.SetNegativeButton("Cancel", (s, args) => { });
             builder.Show();
+        }
+
+        private int DpToPx(int dp)
+        {
+            float density = Resources?.DisplayMetrics?.Density ?? 1.0f;
+            return (int)(dp * density + 0.5f);
         }
 
         protected override void OnDestroy()

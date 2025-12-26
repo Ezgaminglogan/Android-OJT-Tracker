@@ -165,7 +165,7 @@ namespace OJT_InternTrack.Database
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY(user_id) REFERENCES users(user_id)
                     )";
-                
+
                 db.ExecSQL(createTimeEntriesTable);
             }
 
@@ -598,7 +598,7 @@ namespace OJT_InternTrack.Database
                 DateTime currentDate = newStartDate.Date;
                 // If new start date is in past, catch up to today, but only generate if no conflict
                 // Actually, let's just generate forward from the new start date.
-                
+
                 int safetyCounter = 0;
                 while (remainingHours > 0 && safetyCounter < 365) // Cap at 1 year ahead
                 {
@@ -619,7 +619,7 @@ namespace OJT_InternTrack.Database
                             $"SELECT count(*) FROM {TableSchedules} WHERE {ColUserId} = ? AND {ColStartDate} = ? AND {ColIsCompleted} = 1",
                             new[] { userId.ToString(), currentDate.ToString("yyyy-MM-dd") }
                         );
-                        
+
                         int exists = 0;
                         if (existingCursor.MoveToFirst())
                         {
@@ -772,7 +772,7 @@ namespace OJT_InternTrack.Database
             if (db == null) return false;
 
             var clockOutTime = DateTime.Now;
-            
+
             var cursor = db.RawQuery(
                 "SELECT clock_in_time FROM time_entries WHERE entry_id = ?",
                 new[] { entryId.ToString() }
@@ -948,13 +948,13 @@ namespace OJT_InternTrack.Database
                         ClockOutTime = cursor.IsNull(cursor.GetColumnIndex("clock_out_time")) ? null : (DateTime?)DateTime.Parse(cursor.GetString(cursor.GetColumnIndex("clock_out_time"))),
                         TotalHours = cursor.GetDouble(cursor.GetColumnIndex("total_hours")),
                     };
-                    
+
                     int notesIdx = cursor.GetColumnIndex("notes");
                     if (notesIdx != -1) entry.Notes = cursor.GetString(notesIdx);
-                    
+
                     int locIdx = cursor.GetColumnIndex("location");
                     if (locIdx != -1) entry.Location = cursor.GetString(locIdx);
-                    
+
                     int statusIdx = cursor.GetColumnIndex("status");
                     if (statusIdx != -1) entry.Status = cursor.GetString(statusIdx);
 
@@ -998,9 +998,9 @@ namespace OJT_InternTrack.Database
             return Date;
         }
 
-        public string GetIcon()
+        public int GetIcon()
         {
-            return Type == "Task" ? "✓" : "📅";
+            return Type == "Task" ? Resource.Drawable.ic_task : Resource.Drawable.ic_calendar;
         }
     }
 }

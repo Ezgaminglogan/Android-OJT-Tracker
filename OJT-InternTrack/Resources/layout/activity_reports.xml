@@ -57,14 +57,26 @@
                     android:elevation="4dp"
                     android:layout_marginBottom="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="OJT HOURS PROGRESS"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="#718096"
-                        android:layout_marginBottom="12dp"/>
+                        android:layout_marginBottom="12dp">
+                        
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="OJT HOURS PROGRESS"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="#718096"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_alignParentEnd="true"
+                            android:src="@drawable/ic_timer"
+                            android:tint="#718096"/>
+                    </RelativeLayout>
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -118,6 +130,12 @@
                         android:padding="16dp"
                         android:orientation="vertical"
                         android:gravity="center">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_calendar"
+                            android:tint="#3B82F6"
+                            android:layout_marginBottom="8dp"/>
                         <TextView
                             android:id="@+id/weeklyAvgText"
                             android:layout_width="wrap_content"
@@ -144,6 +162,12 @@
                         android:padding="16dp"
                         android:orientation="vertical"
                         android:gravity="center">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_check_circle"
+                            android:tint="#F59E0B"
+                            android:layout_marginBottom="8dp"/>
                         <TextView
                             android:id="@+id/taskRateText"
                             android:layout_width="wrap_content"

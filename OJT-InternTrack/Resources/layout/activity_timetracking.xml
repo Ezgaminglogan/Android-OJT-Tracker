@@ -145,14 +145,15 @@
                         android:layout_height="140dp"
                         android:layout_weight="1"
                         android:layout_marginEnd="6dp"
-                        android:text="Clock In\n⏱️"
+                        android:text="Clock In"
+                        android:drawableTop="@drawable/ic_timer_large"
+                        android:drawablePadding="12dp"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#FFFFFF"
                         android:background="@drawable/button_save"
                         android:elevation="4dp"
-                        android:padding="16dp"
-                        android:lineSpacingExtra="4dp"
+                        android:padding="24dp"
                         android:textAllCaps="false"/>
 
                     <Button
@@ -161,14 +162,15 @@
                         android:layout_height="140dp"
                         android:layout_weight="1"
                         android:layout_marginStart="6dp"
-                        android:text="Clock Out\n🛑"
+                        android:text="Clock Out"
+                        android:drawableTop="@drawable/ic_stop_large"
+                        android:drawablePadding="12dp"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#FFFFFF"
                         android:background="@drawable/button_clock_out"
                         android:elevation="4dp"
-                        android:padding="16dp"
-                        android:lineSpacingExtra="4dp"
+                        android:padding="24dp"
                         android:textAllCaps="false"
                         android:enabled="false"/>
                 </LinearLayout>
@@ -283,12 +285,12 @@
                         android:paddingBottom="20dp"
                         android:elevation="2dp">
                         
-                        <TextView
+                        <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:text="📊"
-                            android:textSize="24sp"
-                            android:gravity="center"
+                            android:src="@drawable/ic_report"
+                            android:padding="12dp"
+                            android:tint="#3B82F6"
                             android:background="@drawable/circle_background_light_blue"
                             android:layout_marginBottom="12dp"/>
                         
@@ -325,12 +327,12 @@
                         android:paddingBottom="20dp"
                         android:elevation="2dp">
                         
-                        <TextView
+                        <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:text="📝"
-                            android:textSize="24sp"
-                            android:gravity="center"
+                            android:src="@drawable/ic_edit"
+                            android:padding="12dp"
+                            android:tint="#8B5CF6"
                             android:background="@drawable/circle_background_light_purple"
                             android:layout_marginBottom="12dp"/>
                         

@@ -78,18 +78,18 @@ namespace OJT_InternTrack.Activities
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
         {
             base.OnActivityResult(requestCode, resultCode, data);
-            
+
             if (requestCode == RequestCodeRingtone && resultCode == Result.Ok && data != null)
             {
                 var uri = data.GetParcelableExtra(Android.Media.RingtoneManager.ExtraRingtonePickedUri) as Android.Net.Uri;
                 if (uri != null)
                 {
                     tempSelectedSoundUri = uri.ToString();
-                    
+
                     // Update the display text in the dialog
                     var ringtone = Android.Media.RingtoneManager.GetRingtone(this, uri);
                     string name = ringtone?.GetTitle(this) ?? "Unknown Sound";
-                    
+
                     if (tempSelectedSoundText != null)
                     {
                         tempSelectedSoundText.Text = name;
@@ -148,7 +148,7 @@ namespace OJT_InternTrack.Activities
             int batchDeleteId = Resources.GetIdentifier("btnBatchDelete", "id", PackageName ?? "");
             int layoutId = Resources.GetIdentifier("notification_alarm", "layout", PackageName ?? "");
             if (batchDeleteId != 0) batchDeleteButton = FindViewById<ImageButton>(batchDeleteId);
-            
+
             int selectAllId = Resources.GetIdentifier("cbSelectAll", "id", PackageName ?? "");
             if (selectAllId != 0) selectAllCheckBox = FindViewById<CheckBox>(selectAllId);
         }
@@ -241,18 +241,18 @@ namespace OJT_InternTrack.Activities
                     todayTime.Text = $"In Progress: {duration.Hours}h {duration.Minutes}m";
                 }
 
-                if (todayLocation != null) todayLocation.Text = "📍 Currently Clocked In";
-                if (alarmStatusText != null) alarmStatusText.Text = "✅ Auto-Detecting Hours...";
+                if (todayLocation != null) todayLocation.Text = "Currently Clocked In";
+                if (alarmStatusText != null) alarmStatusText.Text = "Auto-Detecting Hours...";
                 if (todayAlarmSwitch != null) todayAlarmSwitch.Visibility = ViewStates.Gone;
 
-                return; 
+                return;
             }
 
             // Normal Highlight Logic (if not clocked in)
             if (todayAlarmSwitch != null) todayAlarmSwitch.Visibility = ViewStates.Visible;
             if (todaySessionCard != null) todaySessionCard.SetBackgroundResource(Resource.Drawable.today_session_background);
 
-            var highlightShift = schedules.FirstOrDefault(s => s.IsToday()) 
+            var highlightShift = schedules.FirstOrDefault(s => s.IsToday())
                                 ?? schedules.Where(s => s.StartDate >= DateTime.Today && !s.IsCompleted)
                                             .OrderBy(s => s.StartDate).ThenBy(s => s.StartTime).FirstOrDefault();
 
@@ -273,7 +273,7 @@ namespace OJT_InternTrack.Activities
                 }
 
                 if (todayLocation != null)
-                    todayLocation.Text = $"📍 {highlightShift.Location}";
+                    todayLocation.Text = highlightShift.Location;
 
                 if (todayAlarmSwitch != null)
                     todayAlarmSwitch.Checked = highlightShift.AlarmEnabled;
@@ -283,12 +283,12 @@ namespace OJT_InternTrack.Activities
                     if (highlightShift.AlarmEnabled)
                     {
                         var alarmTime = highlightShift.StartDate.Date + highlightShift.StartTime - TimeSpan.FromMinutes(highlightShift.AlarmMinutesBefore);
-                        alarmStatusText.Text = $"⏰ Alarm: {alarmTime:hh:mm tt} ({highlightShift.AlarmMinutesBefore}m before)";
+                        alarmStatusText.Text = $"Alarm: {alarmTime:hh:mm tt} ({highlightShift.AlarmMinutesBefore}m before)";
                         alarmStatusText.Visibility = ViewStates.Visible;
                     }
                     else
                     {
-                        alarmStatusText.Text = "⏰ Alarm NOT set";
+                        alarmStatusText.Text = "Alarm NOT set";
                         alarmStatusText.Visibility = ViewStates.Visible;
                     }
                 }
@@ -324,7 +324,7 @@ namespace OJT_InternTrack.Activities
 
         private InternSchedule? GetHighlightedShift()
         {
-            return schedules.FirstOrDefault(s => s.IsToday()) 
+            return schedules.FirstOrDefault(s => s.IsToday())
                                 ?? schedules.Where(s => s.StartDate >= DateTime.Today && !s.IsCompleted)
                                             .OrderBy(s => s.StartDate).ThenBy(s => s.StartTime).FirstOrDefault();
         }
@@ -348,7 +348,7 @@ namespace OJT_InternTrack.Activities
                 // Select sound
                 tempEditingSchedule = schedule;
                 tempSelectedSoundText = null;
-                
+
                 var intent = new Intent(Android.Media.RingtoneManager.ActionRingtonePicker);
                 intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneTitle, "Select Alarm Sound");
                 intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneType, (int)Android.Media.RingtoneType.Alarm);
@@ -356,7 +356,7 @@ namespace OJT_InternTrack.Activities
                 intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneShowSilent, false);
                 if (!string.IsNullOrEmpty(schedule.AlarmSoundUri))
                     intent.PutExtra(Android.Media.RingtoneManager.ExtraRingtoneExistingUri, Android.Net.Uri.Parse(schedule.AlarmSoundUri));
-                
+
                 StartActivityForResult(intent, RequestCodeRingtone);
             });
             builder.SetNegativeButton("Cancel", (s, args) => { });
@@ -387,7 +387,7 @@ namespace OJT_InternTrack.Activities
             intent.PutExtra("scheduleId", schedule.Id);
             intent.PutExtra("title", alarmTitle);
             intent.PutExtra("location", alarmLocation);
-            
+
             var timeDt = DateTime.Today.Add(time);
             intent.PutExtra("time", timeDt.ToString("hh:mm tt"));
             intent.PutExtra("soundUri", schedule.AlarmSoundUri);
@@ -403,7 +403,7 @@ namespace OJT_InternTrack.Activities
             if (pendingIntent == null) return;
 
             var alarmDateTime = schedule.StartDate.Date + time - TimeSpan.FromMinutes(schedule.AlarmMinutesBefore);
-            
+
             // If alarm time has already passed for today, don't set it (optional but good)
             if (alarmDateTime < DateTime.Now) return;
 
@@ -455,6 +455,7 @@ namespace OJT_InternTrack.Activities
             if (view == null) return;
             dialog.SetView(view);
 
+
             var editTitle = view.FindViewById<EditText>(Resource.Id.editTitle);
             var editLocation = view.FindViewById<EditText>(Resource.Id.editLocation);
             var textSelectedDate = view.FindViewById<TextView>(Resource.Id.textSelectedDate);
@@ -471,26 +472,26 @@ namespace OJT_InternTrack.Activities
             // Plan Section Views
             var planHours = view.FindViewById<EditText>(Resource.Id.planHours);
             var textPlanProjection = view.FindViewById<TextView>(Resource.Id.textPlanProjection);
-            
+
             var textFixedShiftStart = view.FindViewById<TextView>(Resource.Id.textFixedShiftStart);
             var textFixedShiftEnd = view.FindViewById<TextView>(Resource.Id.textFixedShiftEnd);
             var textBreakStart = view.FindViewById<TextView>(Resource.Id.textBreakStart);
             var textBreakEnd = view.FindViewById<TextView>(Resource.Id.textBreakEnd);
-            
+
             var fixedShiftStartContainer = view.FindViewById<LinearLayout>(Resource.Id.fixedShiftStartContainer);
             var fixedShiftEndContainer = view.FindViewById<LinearLayout>(Resource.Id.fixedShiftEndContainer);
             var breakStartContainer = view.FindViewById<LinearLayout>(Resource.Id.breakStartContainer);
             var breakEndContainer = view.FindViewById<LinearLayout>(Resource.Id.breakEndContainer);
-            
+
 
             // Load Existing Plan Data
             int requiredHours = 600;
-            string workDays = "1,1,1,1,1,0,0"; 
+            string workDays = "1,1,1,1,1,0,0";
             TimeSpan shiftStart = new TimeSpan(8, 0, 0);
             TimeSpan shiftEnd = new TimeSpan(17, 0, 0);
             TimeSpan breakStart = new TimeSpan(12, 0, 0);
             TimeSpan breakEnd = new TimeSpan(13, 0, 0);
-            
+
             if (dbHelper != null && userId != -1)
             {
                 var db = dbHelper.ReadableDatabase;
@@ -499,16 +500,16 @@ namespace OJT_InternTrack.Activities
                 {
                     requiredHours = cursor.GetInt(0);
                     if (requiredHours <= 0) requiredHours = 600;
-                    
+
                     string? sdStr = cursor.GetString(1);
-                    if (!string.IsNullOrEmpty(sdStr) && DateTime.TryParse(sdStr, out var sd)) 
+                    if (!string.IsNullOrEmpty(sdStr) && DateTime.TryParse(sdStr, out var sd))
                     {
                         selectedDate = sd;
                     }
-                    
+
                     string? wdStr = cursor.GetString(2);
                     if (!string.IsNullOrEmpty(wdStr)) workDays = wdStr;
-                    
+
                     if (TimeSpan.TryParse(cursor.GetString(3), out var ss)) shiftStart = ss;
                     if (TimeSpan.TryParse(cursor.GetString(4), out var se)) shiftEnd = se;
                     if (TimeSpan.TryParse(cursor.GetString(5), out var bs)) breakStart = bs;
@@ -535,7 +536,8 @@ namespace OJT_InternTrack.Activities
                 if (dayViews[i] != null)
                 {
                     UpdateDayUI(dayViews[i], activeDays[index]);
-                    dayViews[i].Click += (s, e) => {
+                    dayViews[i].Click += (s, e) =>
+                    {
                         activeDays[index] = !activeDays[index];
                         UpdateDayUI(dayViews[index], activeDays[index]);
                     };
@@ -548,28 +550,30 @@ namespace OJT_InternTrack.Activities
             double totalWorked = dbHelper?.GetTotalHoursWorked(userId) ?? 0;
 
             // Plan Calculation Logic
-            Action updateProjection = () => {
+            Action updateProjection = () =>
+            {
                 if (textPlanProjection == null) return;
                 int.TryParse(planHours?.Text, out int totalReq);
                 if (totalReq <= 0) totalReq = 600;
-                
+
                 double remaining = totalReq - totalWorked;
                 if (remaining <= 0)
                 {
-                    textPlanProjection.Text = "Goal Reached! 🎉";
+                    textPlanProjection.Text = "Goal Reached!";
                     return;
                 }
-                
+
                 // Smart Calc: Only count active days minus breaks
                 double totalShiftHours = (shiftEnd - shiftStart).TotalHours;
                 double breakHours = (breakEnd - breakStart).TotalHours;
-                if (breakHours < 0) breakHours = 0; 
-                
+                if (breakHours < 0) breakHours = 0;
+
                 double netHoursPerDay = totalShiftHours - breakHours;
-                if (netHoursPerDay <= 0) netHoursPerDay = 8.0; 
+                if (netHoursPerDay <= 0) netHoursPerDay = 8.0;
 
                 int activeDaysCount = activeDays.Count(d => d);
-                if (activeDaysCount == 0) {
+                if (activeDaysCount == 0)
+                {
                     textPlanProjection.Text = "Select work days";
                     return;
                 }
@@ -577,14 +581,15 @@ namespace OJT_InternTrack.Activities
                 int daysNeeded = (int)Math.Ceiling(remaining / netHoursPerDay);
                 DateTime current = selectedDate;
                 int count = 0;
-                
+
                 // Check if today is a work day
                 int todayIdx = ((int)current.DayOfWeek + 6) % 7;
                 if (activeDays[todayIdx]) count++;
 
-                while (count < daysNeeded) {
+                while (count < daysNeeded)
+                {
                     current = current.AddDays(1);
-                    int dayIdx = ((int)current.DayOfWeek + 6) % 7; 
+                    int dayIdx = ((int)current.DayOfWeek + 6) % 7;
                     if (activeDays[dayIdx]) count++;
                 }
 
@@ -593,33 +598,41 @@ namespace OJT_InternTrack.Activities
             updateProjection();
 
 
-            for(int i=0; i<7; i++) if(dayViews[i] != null) dayViews[i].Click += (s,e) => updateProjection();
+            for (int i = 0; i < 7; i++) if (dayViews[i] != null) dayViews[i].Click += (s, e) => updateProjection();
             if (planHours != null) planHours.TextChanged += (s, e) => updateProjection();
 
             // Time Picker Setup
-            if (fixedShiftStartContainer != null) fixedShiftStartContainer.Click += (s, e) => {
-                new TimePickerDialog(this, (sender, args) => {
+            if (fixedShiftStartContainer != null) fixedShiftStartContainer.Click += (s, e) =>
+            {
+                new TimePickerDialog(this, (sender, args) =>
+                {
                     shiftStart = new TimeSpan(args.HourOfDay, args.Minute, 0);
                     if (textFixedShiftStart != null) textFixedShiftStart.Text = DateTime.Today.Add(shiftStart).ToString("hh:mm tt");
                     updateProjection();
                 }, shiftStart.Hours, shiftStart.Minutes, false).Show();
             };
-            if (fixedShiftEndContainer != null) fixedShiftEndContainer.Click += (s, e) => {
-                new TimePickerDialog(this, (sender, args) => {
+            if (fixedShiftEndContainer != null) fixedShiftEndContainer.Click += (s, e) =>
+            {
+                new TimePickerDialog(this, (sender, args) =>
+                {
                     shiftEnd = new TimeSpan(args.HourOfDay, args.Minute, 0);
                     if (textFixedShiftEnd != null) textFixedShiftEnd.Text = DateTime.Today.Add(shiftEnd).ToString("hh:mm tt");
                     updateProjection();
                 }, shiftEnd.Hours, shiftEnd.Minutes, false).Show();
             };
-            if (breakStartContainer != null) breakStartContainer.Click += (s, e) => {
-                new TimePickerDialog(this, (sender, args) => {
+            if (breakStartContainer != null) breakStartContainer.Click += (s, e) =>
+            {
+                new TimePickerDialog(this, (sender, args) =>
+                {
                     breakStart = new TimeSpan(args.HourOfDay, args.Minute, 0);
                     if (textBreakStart != null) textBreakStart.Text = DateTime.Today.Add(breakStart).ToString("hh:mm tt");
                     updateProjection();
                 }, breakStart.Hours, breakStart.Minutes, false).Show();
             };
-            if (breakEndContainer != null) breakEndContainer.Click += (s, e) => {
-                new TimePickerDialog(this, (sender, args) => {
+            if (breakEndContainer != null) breakEndContainer.Click += (s, e) =>
+            {
+                new TimePickerDialog(this, (sender, args) =>
+                {
                     breakEnd = new TimeSpan(args.HourOfDay, args.Minute, 0);
                     if (textBreakEnd != null) textBreakEnd.Text = DateTime.Today.Add(breakEnd).ToString("hh:mm tt");
                     updateProjection();
@@ -706,11 +719,11 @@ namespace OJT_InternTrack.Activities
                         values.Put(DatabaseHelper.ColBreakEnd, breakEnd.ToString(@"hh\:mm\:ss"));
                         values.Put(DatabaseHelper.ColOJTStartDate, selectedDate.ToString("yyyy-MM-dd"));
                         db.Update(DatabaseHelper.TableUsers, values, $"{DatabaseHelper.ColUserId} = ?", new[] { userId.ToString() });
-                        
+
                         // Regenerate future schedules based on new plan
                         dbHelper.RegenerateSchedule(userId, selectedDate);
                     }
-                    
+
                     // 2. Save New Shift (if title is present)
                     string title = editTitle?.Text?.Trim() ?? "";
                     if (!string.IsNullOrEmpty(title))
@@ -746,7 +759,7 @@ namespace OJT_InternTrack.Activities
                     }
 
                     ToastUtils.ShowCustomToast(this, "Plan updated!");
-                    
+
                     // Refresh UI
                     LoadData();
                     UpdateTodaySession();

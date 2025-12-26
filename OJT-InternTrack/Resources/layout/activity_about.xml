@@ -53,12 +53,12 @@
                 android:layout_marginBottom="16dp">
 
                 <!-- App Icon Placeholder -->
-                <TextView
+                <ImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:text="🎓"
-                    android:textSize="48sp"
-                    android:gravity="center"
+                    android:src="@drawable/ic_school"
+                    android:padding="16dp"
+                    android:tint="#FFFFFF"
                     android:background="@drawable/circle_background_light_green"
                     android:layout_marginBottom="16dp"/>
 
@@ -162,11 +162,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="💻"
-                            android:textSize="24sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_code"
+                            android:tint="#10B981"
                             android:layout_marginBottom="4dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -187,11 +187,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="⚙️"
-                            android:textSize="24sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_settings"
+                            android:tint="#3B82F6"
                             android:layout_marginBottom="4dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -212,11 +212,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📱"
-                            android:textSize="24sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_smartphone"
+                            android:tint="#F59E0B"
                             android:layout_marginBottom="4dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -237,11 +237,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🗄️"
-                            android:textSize="24sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_storage"
+                            android:tint="#EF4444"
                             android:layout_marginBottom="4dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -262,11 +262,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🎨"
-                            android:textSize="24sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_palette"
+                            android:tint="#8B5CF6"
                             android:layout_marginBottom="4dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -287,11 +287,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🤖"
-                            android:textSize="24sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_smart_toy"
+                            android:tint="#06B6D4"
                             android:layout_marginBottom="4dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -340,11 +340,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="⏰"
-                            android:textSize="28sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_alarm"
+                            android:tint="#10B981"
                             android:layout_marginBottom="8dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -374,11 +374,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📅"
-                            android:textSize="28sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_calendar"
+                            android:tint="#3B82F6"
                             android:layout_marginBottom="8dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -408,11 +408,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📝"
-                            android:textSize="28sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_task"
+                            android:tint="#F59E0B"
                             android:layout_marginBottom="8dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -442,11 +442,11 @@
                         android:padding="12dp"
                         android:orientation="vertical"
                         android:gravity="center">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📊"
-                            android:textSize="28sp"
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_report"
+                            android:tint="#8B5CF6"
                             android:layout_marginBottom="8dp"/>
                         <TextView
                             android:layout_width="wrap_content"
@@ -499,7 +499,10 @@
                     android:id="@+id/supportEmailText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📧 logan.panucat2@gmail.com"
+                    android:text="logan.panucat2@gmail.com"
+                    android:drawableStart="@drawable/ic_email"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
                     android:textSize="14sp"
                     android:textColor="#10B981"
                     android:textStyle="bold"/>
