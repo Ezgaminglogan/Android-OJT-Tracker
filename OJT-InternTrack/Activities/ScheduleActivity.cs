@@ -368,17 +368,27 @@ namespace OJT_InternTrack.Activities
             var alarmManager = GetSystemService(AlarmService) as AlarmManager;
             if (alarmManager == null) return;
 
-            // 1. Shift Start Alarm
-            SetSingleAlarm(schedule, 0, schedule.StartTime, "Shift Starting", schedule.Location);
+            // Get user ID for auto-clock operations
+            var prefs = GetSharedPreferences("OJT_InternTrack", FileCreationMode.Private);
+            int currentUserId = prefs?.GetInt("user_id", -1) ?? -1;
 
-            // 2. Break Start Alarm (only if alarm is enabled)
-            SetSingleAlarm(schedule, 1, schedule.BreakStart, "Break Starting", "Time to rest!");
+            // 1. Reminder Alarm (X minutes before shift starts) - NOTIFICATION ONLY
+            SetSingleAlarm(schedule, 0, schedule.StartTime, "Shift Starting Soon", schedule.Location, "notification", currentUserId, schedule.AlarmMinutesBefore);
 
-            // 3. Break End Alarm (only if alarm is enabled)
-            SetSingleAlarm(schedule, 2, schedule.BreakEnd, "Break Ending", "Back to work!");
+            // 2. Auto Clock-In Alarm (at exact shift start time) - AUTO CLOCK IN
+            SetSingleAlarm(schedule, 1, schedule.StartTime, "Shift Started - Auto Clocked In", schedule.Location, "clock_in", currentUserId, 0);
+
+            // 3. Break Start Alarm (at break time) - BREAK START
+            SetSingleAlarm(schedule, 2, schedule.BreakStart, "Break Time", "Take a rest!", "break_start", currentUserId, 0);
+
+            // 4. Break End Alarm (when break ends) - BREAK END
+            SetSingleAlarm(schedule, 3, schedule.BreakEnd, "Break Ending", "Back to work!", "break_end", currentUserId, 0);
+
+            // 5. Auto Clock-Out Alarm (at shift end time) - AUTO CLOCK OUT
+            SetSingleAlarm(schedule, 4, schedule.EndTime, "Shift Ended - Auto Clocked Out", schedule.Location, "clock_out", currentUserId, 0);
         }
 
-        private void SetSingleAlarm(InternSchedule schedule, int typeOffset, TimeSpan time, string alarmTitle, string alarmLocation)
+        private void SetSingleAlarm(InternSchedule schedule, int typeOffset, TimeSpan time, string alarmTitle, string alarmLocation, string actionType, int userId, int minutesBefore)
         {
             var alarmManager = GetSystemService(AlarmService) as AlarmManager;
             if (alarmManager == null || !schedule.AlarmEnabled) return;
@@ -387,6 +397,8 @@ namespace OJT_InternTrack.Activities
             intent.PutExtra("scheduleId", schedule.Id);
             intent.PutExtra("title", alarmTitle);
             intent.PutExtra("location", alarmLocation);
+            intent.PutExtra("actionType", actionType); // notification, clock_in, break_start, break_end, clock_out
+            intent.PutExtra("userId", userId);
 
             var timeDt = DateTime.Today.Add(time);
             intent.PutExtra("time", timeDt.ToString("hh:mm tt"));
@@ -402,9 +414,10 @@ namespace OJT_InternTrack.Activities
 
             if (pendingIntent == null) return;
 
-            var alarmDateTime = schedule.StartDate.Date + time - TimeSpan.FromMinutes(schedule.AlarmMinutesBefore);
+            // Calculate alarm time (subtract minutesBefore for notification alarms, 0 for auto-clock alarms)
+            var alarmDateTime = schedule.StartDate.Date + time - TimeSpan.FromMinutes(minutesBefore);
 
-            // If alarm time has already passed for today, don't set it (optional but good)
+            // If alarm time has already passed for today, don't set it
             if (alarmDateTime < DateTime.Now) return;
 
             var alarmTimeMillis = new DateTimeOffset(alarmDateTime).ToUnixTimeMilliseconds();
@@ -424,7 +437,8 @@ namespace OJT_InternTrack.Activities
             var alarmManager = GetSystemService(AlarmService) as AlarmManager;
             if (alarmManager == null) return;
 
-            int[] typeOffsets = { 0, 1, 2 };
+            // Cancel all 5 alarm types
+            int[] typeOffsets = { 0, 1, 2, 3, 4 };
             foreach (var offset in typeOffsets)
             {
                 var intent = new Intent(this, typeof(AlarmReceiver));
@@ -764,6 +778,10 @@ namespace OJT_InternTrack.Activities
                     LoadData();
                     UpdateTodaySession();
                     PopulateScheduleList();
+
+                    // Check for past incomplete shifts and prompt for backfill
+                    CheckAndPromptBackfill();
+                    
                     dialog.Dismiss();
                 };
             }
@@ -1038,6 +1056,67 @@ namespace OJT_InternTrack.Activities
             values.Put("alarm_sound", schedule.AlarmSoundUri);
 
             db.Update("schedules", values, "schedule_id = ?", new[] { schedule.Id.ToString() });
+        }
+
+        private void CheckAndPromptBackfill()
+        {
+            if (dbHelper == null || userId == -1) return;
+
+            // Check for past incomplete shifts
+            int pastShiftsCount = dbHelper.GetPastIncompleteShiftsCount(userId);
+            
+            if (pastShiftsCount > 0)
+            {
+                // Calculate total hours that can be backfilled
+                double totalHours = dbHelper.CalculatePastShiftsHours(userId);
+
+                // Show dialog to user
+                RunOnUiThread(() =>
+                {
+                    var builder = new AlertDialog.Builder(this);
+                    builder.SetTitle("📊 Past Shifts Detected");
+                    builder.SetMessage(
+                        $"Found {pastShiftsCount} past shift{(pastShiftsCount > 1 ? "s" : "")} " +
+                        $"that {(pastShiftsCount > 1 ? "haven't" : "hasn't")} been logged yet.\n\n" +
+                        $"💡 Auto-complete with {totalHours:F1} hours?\n\n" +
+                        $"This will:\n" +
+                        $"✓ Create time entries for past dates\n" +
+                        $"✓ Mark those schedules as complete\n" +
+                        $"✓ Update your dashboard progress\n\n" +
+                        $"(Breaks are automatically deducted)"
+                    );
+
+                    builder.SetPositiveButton("✅ Auto-Complete", (s, e) =>
+                    {
+                        // Perform backfill
+                        int backfilledCount = dbHelper.BackfillPastShifts(userId);
+                        
+                        if (backfilledCount > 0)
+                        {
+                            ToastUtils.ShowCustomToast(this, 
+                                $"✅ {backfilledCount} shift{(backfilledCount > 1 ? "s" : "")} auto-completed! " +
+                                $"+{totalHours:F1} hours added");
+                            
+                            // Refresh all data
+                            LoadData();
+                            UpdateTodaySession();
+                            PopulateScheduleList();
+                        }
+                        else
+                        {
+                            Toast.MakeText(this, "Failed to backfill shifts", ToastLength.Short)?.Show();
+                        }
+                    });
+
+                    builder.SetNegativeButton("⏭️ Skip", (s, e) =>
+                    {
+                        Toast.MakeText(this, "You can manually log hours in Time Tracking", ToastLength.Long)?.Show();
+                    });
+
+                    builder.SetCancelable(false); // Force user to make a choice
+                    builder.Show();
+                });
+            }
         }
 
 

@@ -7,7 +7,7 @@ namespace OJT_InternTrack.Database
     public class DatabaseHelper : SQLiteOpenHelper
     {
         private new const string DatabaseName = "OJTInternTrack.db";
-        private const int DatabaseVersion = 8;
+        private const int DatabaseVersion = 9;
 
         // Table names
         public const string TableUsers = "users";
@@ -123,6 +123,8 @@ namespace OJT_InternTrack.Database
                     user_id INTEGER,
                     clock_in_time DATETIME,
                     clock_out_time DATETIME,
+                    break_start_time DATETIME,
+                    break_end_time DATETIME,
                     total_hours REAL,
                     location TEXT,
                     notes TEXT,
@@ -244,6 +246,20 @@ namespace OJT_InternTrack.Database
                 {
                     db.ExecSQL($"ALTER TABLE {TableSchedules} ADD COLUMN {ColBreakStart} TEXT");
                     db.ExecSQL($"ALTER TABLE {TableSchedules} ADD COLUMN {ColBreakEnd} TEXT");
+                }
+                catch
+                {
+                    // Columns might already exist
+                }
+            }
+
+            // Version 9: Added break time tracking to time_entries table
+            if (oldVersion < 9)
+            {
+                try
+                {
+                    db.ExecSQL("ALTER TABLE time_entries ADD COLUMN break_start_time DATETIME");
+                    db.ExecSQL("ALTER TABLE time_entries ADD COLUMN break_end_time DATETIME");
                 }
                 catch
                 {
@@ -975,6 +991,204 @@ namespace OJT_InternTrack.Database
 
             int rows = db.Update("time_entries", values, "entry_id = ?", new[] { entryId.ToString() });
             return rows > 0;
+        }
+
+        // Update break start time for a time entry
+        public bool UpdateTimeEntryBreakStart(int entryId, DateTime breakStartTime)
+        {
+            var db = WritableDatabase;
+            if (db == null) return false;
+
+            var values = new ContentValues();
+            values.Put("break_start_time", breakStartTime.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            int rows = db.Update("time_entries", values, "entry_id = ?", new[] { entryId.ToString() });
+            return rows > 0;
+        }
+
+        // Update break end time for a time entry
+        public bool UpdateTimeEntryBreakEnd(int entryId, DateTime breakEndTime)
+        {
+            var db = WritableDatabase;
+            if (db == null) return false;
+
+            var values = new ContentValues();
+            values.Put("break_end_time", breakEndTime.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            int rows = db.Update("time_entries", values, "entry_id = ?", new[] { entryId.ToString() });
+            return rows > 0;
+        }
+
+        // Mark a schedule as completed
+        public bool MarkScheduleCompleted(int scheduleId)
+        {
+            var db = WritableDatabase;
+            if (db == null) return false;
+
+            var values = new ContentValues();
+            values.Put(ColIsCompleted, 1);
+
+            int rows = db.Update(TableSchedules, values, $"{ColScheduleId} = ?", new[] { scheduleId.ToString() });
+            return rows > 0;
+        }
+
+        // Backfill past shifts with automatic time entries
+        public int BackfillPastShifts(int userId)
+        {
+            var db = WritableDatabase;
+            if (db == null) return 0;
+
+            int backfilledCount = 0;
+
+            try
+            {
+                // Get all past incomplete schedules
+                var cursor = db.RawQuery(
+                    $@"SELECT * FROM {TableSchedules} 
+                       WHERE {ColUserId} = ? 
+                       AND {ColStartDate} < date('now') 
+                       AND {ColIsCompleted} = 0
+                       ORDER BY {ColStartDate} ASC",
+                    new[] { userId.ToString() }
+                );
+
+                if (cursor != null && cursor.MoveToFirst())
+                {
+                    do
+                    {
+                        var scheduleId = cursor.GetInt(cursor.GetColumnIndex(ColScheduleId));
+                        var startDate = DateTime.Parse(cursor.GetString(cursor.GetColumnIndex(ColStartDate)));
+                        var startTime = TimeSpan.Parse(cursor.GetString(cursor.GetColumnIndex(ColStartTime)));
+                        var endTime = TimeSpan.Parse(cursor.GetString(cursor.GetColumnIndex(ColEndTime)));
+                        var location = cursor.GetString(cursor.GetColumnIndex(ColLocation)) ?? "OJT Location";
+                        
+                        // Get break times
+                        TimeSpan breakStart = new TimeSpan(12, 0, 0);
+                        TimeSpan breakEnd = new TimeSpan(13, 0, 0);
+                        
+                        var breakStartIdx = cursor.GetColumnIndex(ColBreakStart);
+                        var breakEndIdx = cursor.GetColumnIndex(ColBreakEnd);
+                        
+                        if (breakStartIdx >= 0 && !cursor.IsNull(breakStartIdx))
+                            breakStart = TimeSpan.Parse(cursor.GetString(breakStartIdx));
+                        if (breakEndIdx >= 0 && !cursor.IsNull(breakEndIdx))
+                            breakEnd = TimeSpan.Parse(cursor.GetString(breakEndIdx));
+
+                        // Calculate times
+                        var clockInDateTime = startDate.Date + startTime;
+                        var clockOutDateTime = startDate.Date + endTime;
+                        var breakStartDateTime = startDate.Date + breakStart;
+                        var breakEndDateTime = startDate.Date + breakEnd;
+
+                        // Calculate total hours (excluding break)
+                        var totalWorkTime = (clockOutDateTime - clockInDateTime).TotalHours;
+                        var breakDuration = (breakEndDateTime - breakStartDateTime).TotalHours;
+                        var totalHours = totalWorkTime - breakDuration;
+
+                        // Create time entry
+                        var values = new ContentValues();
+                        values.Put("user_id", userId);
+                        values.Put("clock_in_time", clockInDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                        values.Put("clock_out_time", clockOutDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                        values.Put("break_start_time", breakStartDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                        values.Put("break_end_time", breakEndDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                        values.Put("total_hours", totalHours);
+                        values.Put("location", location);
+                        values.Put("notes", "Auto-backfilled from past schedule");
+                        values.Put("status", "completed");
+
+                        long entryId = db.Insert("time_entries", null, values);
+
+                        if (entryId > 0)
+                        {
+                            // Mark schedule as completed
+                            MarkScheduleCompleted(scheduleId);
+                            backfilledCount++;
+                        }
+
+                    } while (cursor.MoveToNext());
+                }
+                cursor?.Close();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error backfilling past shifts: {ex.Message}");
+            }
+
+            return backfilledCount;
+        }
+
+        // Get count of past incomplete schedules
+        public int GetPastIncompleteShiftsCount(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            var cursor = db.RawQuery(
+                $@"SELECT COUNT(*) FROM {TableSchedules} 
+                   WHERE {ColUserId} = ? 
+                   AND {ColStartDate} < date('now') 
+                   AND {ColIsCompleted} = 0",
+                new[] { userId.ToString() }
+            );
+
+            int count = 0;
+            if (cursor != null && cursor.MoveToFirst())
+            {
+                count = cursor.GetInt(0);
+            }
+            cursor?.Close();
+            return count;
+        }
+
+        // Calculate total hours for past incomplete schedules
+        public double CalculatePastShiftsHours(int userId)
+        {
+            var db = ReadableDatabase;
+            if (db == null) return 0;
+
+            double totalHours = 0;
+
+            try
+            {
+                var cursor = db.RawQuery(
+                    $@"SELECT {ColStartTime}, {ColEndTime}, {ColBreakStart}, {ColBreakEnd} 
+                       FROM {TableSchedules} 
+                       WHERE {ColUserId} = ? 
+                       AND {ColStartDate} < date('now') 
+                       AND {ColIsCompleted} = 0",
+                    new[] { userId.ToString() }
+                );
+
+                if (cursor != null && cursor.MoveToFirst())
+                {
+                    do
+                    {
+                        var startTime = TimeSpan.Parse(cursor.GetString(0));
+                        var endTime = TimeSpan.Parse(cursor.GetString(1));
+                        
+                        TimeSpan breakStart = new TimeSpan(12, 0, 0);
+                        TimeSpan breakEnd = new TimeSpan(13, 0, 0);
+                        
+                        if (!cursor.IsNull(2))
+                            breakStart = TimeSpan.Parse(cursor.GetString(2));
+                        if (!cursor.IsNull(3))
+                            breakEnd = TimeSpan.Parse(cursor.GetString(3));
+
+                        var workHours = (endTime - startTime).TotalHours;
+                        var breakHours = (breakEnd - breakStart).TotalHours;
+                        totalHours += (workHours - breakHours);
+
+                    } while (cursor.MoveToNext());
+                }
+                cursor?.Close();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error calculating past shifts hours: {ex.Message}");
+            }
+
+            return totalHours;
         }
     }
 
